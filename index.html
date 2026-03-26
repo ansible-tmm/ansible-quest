@@ -128,7 +128,7 @@ html, body {
     flex-direction: row;
     justify-content: center;
     align-items: flex-end;
-    gap: 3.4vw;
+    gap: 24px;
     padding-bottom: 15.3vh;
     opacity: 1;
     transition: opacity 0.4s ease;
@@ -202,28 +202,38 @@ html, body {
 
 .realmOption {
     pointer-events: auto;
-    width: 14vw;
-    padding: 2.5vh 1.5vw;
-    background: rgba(20, 15, 8, 0.65);
-    border: 1px solid rgba(255, 200, 80, 0.15);
-    border-radius: 4px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    width: 200px;
+    height: 70px;
+    background: rgba(20, 15, 8, 0.75);
+    border: 1px solid rgba(255, 200, 80, 0.2);
+    border-radius: 6px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transition: opacity 0.4s ease, transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
     cursor: pointer;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
+    box-sizing: border-box;
+    gap: 2px;
 }
 
-.realmOption span {
+.realmOption .realm-emoji {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.realmOption .realm-label {
     color: #fff;
-    font-size: 1.8vw;
+    font-size: 14px;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     font-family: 'Cinzel', serif;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .realmOption:hover {
@@ -234,7 +244,7 @@ html, body {
 #village {
     border-color: rgba(45, 106, 79, 0.4);
 }
-#village span {
+#village .realm-label {
     text-shadow: 0 0 20px #2d6a4f, 0 0 40px rgba(45, 106, 79, 0.3);
     color: #74c69d;
 }
@@ -246,7 +256,7 @@ html, body {
 #township {
     border-color: rgba(123, 44, 191, 0.4);
 }
-#township span {
+#township .realm-label {
     text-shadow: 0 0 20px #7b2cbf, 0 0 40px rgba(123, 44, 191, 0.3);
     color: #c77dff;
 }
@@ -258,7 +268,7 @@ html, body {
 #fortress {
     border-color: rgba(157, 2, 8, 0.4);
 }
-#fortress span {
+#fortress .realm-label {
     text-shadow: 0 0 20px #9d0208, 0 0 40px rgba(157, 2, 8, 0.3);
     color: #e5383b;
 }
@@ -601,9 +611,9 @@ html, body {
 
         <div id="mainContent">
             <div id="landingPage">
-                <div id="village" class="realmOption"><span>⚒️ Village — Create</span></div>
-                <div id="township" class="realmOption"><span>🏰 Township — Test</span></div>
-                <div id="fortress" class="realmOption"><span>⚔️ Fortress — Deploy</span></div>
+                <div id="village" class="realmOption"><span class="realm-emoji">⚒️</span><span class="realm-label">Village — Create</span></div>
+                <div id="township" class="realmOption"><span class="realm-emoji">🏰</span><span class="realm-label">Township — Test</span></div>
+                <div id="fortress" class="realmOption"><span class="realm-emoji">⚔️</span><span class="realm-label">Fortress — Deploy</span></div>
                 <div id="go-fullscreen"></div>
             </div>
             <div id="landing-bottom-bar">
@@ -869,6 +879,63 @@ var MedievalKingdom = (function () {
       var campLight = new THREE.PointLight(0xff8833, 4, 12, 1.5);
       campLight.position.set(0, 1.0, 0);
       fg.add(campLight);
+
+      // Peasants gathered around the fire
+      var pColors = [0x8a6a3a, 0x6a4a2a, 0x7a5a4a, 0x5a6a3a, 0x8a5a2a];
+      var pSkins = [0xd4a574, 0xc49464, 0xb48454];
+      var pCount = 2 + Math.floor(Math.random() * 3); // 2-4 peasants per fire
+      for (var pi = 0; pi < pCount; pi++) {
+        var pAngle = (pi / pCount) * Math.PI * 2 + i * 1.2;
+        var pDist = 1.3 + Math.random() * 0.5;
+        var px = Math.cos(pAngle) * pDist;
+        var pz = Math.sin(pAngle) * pDist;
+        var pg = new THREE.Group();
+        pg.position.set(px, 0, pz);
+        pg.lookAt(new THREE.Vector3(0, 0, 0));
+
+        var pSkin = new THREE.MeshStandardMaterial({
+          color: pSkins[pi % pSkins.length], roughness: 0.7,
+          emissive: new THREE.Color(pSkins[pi % pSkins.length]).multiplyScalar(0.15), emissiveIntensity: 1,
+        });
+        var pTunic = new THREE.MeshStandardMaterial({
+          color: pColors[pi % pColors.length], roughness: 0.8,
+          emissive: new THREE.Color(pColors[pi % pColors.length]).multiplyScalar(0.2), emissiveIntensity: 1,
+        });
+
+        var sitting = Math.random() > 0.4;
+        if (sitting) {
+          // Seated body — shorter, legs forward
+          var sTorso = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.22, 0.14), pTunic);
+          sTorso.position.y = 0.28;
+          pg.add(sTorso);
+          var sHead = new THREE.Mesh(new THREE.SphereGeometry(0.09, 5, 5), pSkin);
+          sHead.position.y = 0.48;
+          pg.add(sHead);
+          // Legs stretched toward fire
+          var sLeg = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.06, 0.2), new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 }));
+          sLeg.position.set(0, 0.12, 0.14);
+          pg.add(sLeg);
+          // Seated on a log or rock
+          var seat = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.18, 5), new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.9 }));
+          seat.position.y = 0.09;
+          pg.add(seat);
+        } else {
+          // Standing — just a small upright figure
+          var stBody = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.3, 0.12), pTunic);
+          stBody.position.y = 0.38;
+          pg.add(stBody);
+          var stHead = new THREE.Mesh(new THREE.SphereGeometry(0.09, 5, 5), pSkin);
+          stHead.position.y = 0.58;
+          pg.add(stHead);
+          var stLegL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.06), new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 }));
+          stLegL.position.set(0.05, 0.15, 0);
+          pg.add(stLegL);
+          var stLegR = stLegL.clone();
+          stLegR.position.x = -0.05;
+          pg.add(stLegR);
+        }
+        fg.add(pg);
+      }
 
       fg.position.set(fx, 0, fz);
       scene.add(fg);
@@ -1679,29 +1746,23 @@ var MedievalKingdom = (function () {
     wall2.position.z = z - 1.15;
     scene.add(wall2);
 
-    // Support pillars (stone arches)
-    var roadXPositions = [-28, 0, 28];
-    var roadClearance = 2.5;
+    // Wall-mounted posts with torches (on the outside of walls, not blocking the road)
+    for (var px = -trackLen / 2 + 8; px <= trackLen / 2 - 8; px += pillarSpacing) {
+      // Small posts on top of each wall
+      var post1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.6, 0.3), bridgeMat);
+      post1.position.set(px, 0.9, z + 1.15);
+      scene.add(post1);
+      var post2 = post1.clone();
+      post2.position.z = z - 1.15;
+      scene.add(post2);
 
-    for (var px = -trackLen / 2 + 4; px <= trackLen / 2 - 4; px += pillarSpacing) {
-      var onRoad = false;
-      for (var ri = 0; ri < roadXPositions.length; ri++) {
-        if (Math.abs(px - roadXPositions[ri]) < roadClearance) { onRoad = true; break; }
-      }
-      if (onRoad) continue;
-
-      // Stone pillar
-      var pillar = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.5, 0.6), bridgeMat);
-      pillar.position.set(px, 0.75, z);
-      scene.add(pillar);
-
-      // Torch on alternating pillars
+      // Torch on alternating posts
       if (Math.abs(px) % 20 < 11) {
         var tFlame = new THREE.Mesh(
           new THREE.SphereGeometry(0.1, 4, 4),
           new THREE.MeshBasicMaterial({ color: 0xff8822, transparent: true, opacity: 0.8 })
         );
-        tFlame.position.set(px, 1.7, z + 1.3);
+        tFlame.position.set(px, 1.5, z + 1.3);
         tFlame.userData._isTorchFlame = true;
         _animObjs.push(tFlame);
         scene.add(tFlame);
@@ -2700,6 +2761,7 @@ var MedievalKingdom = (function () {
     if (svg) svg.style.transform = "rotate(" + deg + "deg)";
   }
 
+  var labelSmooth = {};
   function updateLabels() {
     Object.keys(districts).forEach(function (k) {
       var el = labelEls[k];
@@ -2707,9 +2769,15 @@ var MedievalKingdom = (function () {
       var wp = districts[k].group.position.clone();
       wp.y = 7;
       var sp = wp.project(camera);
-      var x = (sp.x * 0.5 + 0.5) * container.clientWidth;
-      var y = (-sp.y * 0.5 + 0.5) * container.clientHeight;
-      el.style.transform = "translate(-50%,-50%) translate(" + x + "px," + y + "px)";
+      var tx = (sp.x * 0.5 + 0.5) * container.clientWidth;
+      var ty = (-sp.y * 0.5 + 0.5) * container.clientHeight;
+      if (!labelSmooth[k]) { labelSmooth[k] = { x: tx, y: ty }; }
+      var ls = labelSmooth[k];
+      ls.x += (tx - ls.x) * 0.08;
+      ls.y += (ty - ls.y) * 0.08;
+      var rx = Math.round(ls.x * 10) / 10;
+      var ry = Math.round(ls.y * 10) / 10;
+      el.style.transform = "translate(-50%,-50%) translate(" + rx + "px," + ry + "px)";
       el.style.opacity = selectedDistrict ? "0" : "1";
     });
   }
