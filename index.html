@@ -647,6 +647,11 @@ var MedievalKingdom = (function () {
   var container = null;
   var labelEls = {};
   var banners = {};
+  var _animObjs = [];
+  var _hoverCacheBuilt = false;
+  var _catMeshes = [];
+  var _bbMeshes = [];
+  var _districtMeshes = [];
 
   var OVERVIEW = {
     pos: new THREE.Vector3(0, 55, 65),
@@ -781,7 +786,7 @@ var MedievalKingdom = (function () {
 
     // Road edges — pale stone borders
     var edgeMat = new THREE.MeshStandardMaterial({ color: 0x9a8a6a, roughness: 0.7, metalness: 0.15 });
-    for (var ex = -60; ex <= 60; ex += 3) {
+    for (var ex = -60; ex <= 60; ex += 6) {
       var edge = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.4), edgeMat);
       edge.position.set(ex, 0.1, 14 + roadW / 2 + 0.25);
       scene.add(edge);
@@ -809,8 +814,8 @@ var MedievalKingdom = (function () {
       var fg = new THREE.Group();
 
       // Stone ring
-      for (var si = 0; si < 8; si++) {
-        var angle = (si / 8) * Math.PI * 2;
+      for (var si = 0; si < 6; si++) {
+        var angle = (si / 6) * Math.PI * 2;
         var stone = new THREE.Mesh(
           new THREE.BoxGeometry(0.35, 0.2, 0.35),
           new THREE.MeshStandardMaterial({ color: 0x7a7a6a, roughness: 0.9 })
@@ -835,6 +840,7 @@ var MedievalKingdom = (function () {
       flame1.position.set(0, 0.7, 0);
       flame1.userData._isCampFlame = true;
       flame1.userData._flameIdx = i;
+      _animObjs.push(flame1);
       fg.add(flame1);
 
       var innerFlame = new THREE.Mesh(
@@ -844,6 +850,7 @@ var MedievalKingdom = (function () {
       innerFlame.position.set(0, 0.55, 0);
       innerFlame.userData._isCampFlame = true;
       innerFlame.userData._flameIdx = i + 10;
+      _animObjs.push(innerFlame);
       fg.add(innerFlame);
 
       // Strong warm campfire light
@@ -881,51 +888,55 @@ var MedievalKingdom = (function () {
   }
 
   function addTrees() {
-    var treeMat = new THREE.MeshStandardMaterial({ color: 0x1a5a1a, roughness: 0.8 });
-    var darkTreeMat = new THREE.MeshStandardMaterial({ color: 0x0e3a0e, roughness: 0.85 });
-    var trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.9 });
-
     var positions = [];
-    // Scatter trees around the edges, avoiding districts and roads
     for (var i = 0; i < 120; i++) {
       var tx = (Math.random() - 0.5) * 200;
       var tz = (Math.random() - 0.5) * 120;
-      // Avoid district centers
       var tooClose = false;
-      [[-28, 0], [0, 0], [28, 0]].forEach(function (d) {
-        if (Math.sqrt(Math.pow(tx - d[0], 2) + Math.pow(tz - d[1], 2)) < 16) tooClose = true;
-      });
-      // Avoid main road
+      var dists = [[-28, 0], [0, 0], [28, 0]];
+      for (var di = 0; di < dists.length; di++) {
+        if (Math.sqrt(Math.pow(tx - dists[di][0], 2) + Math.pow(tz - dists[di][1], 2)) < 16) tooClose = true;
+      }
       if (Math.abs(tz - 14) < 3) tooClose = true;
-      // Avoid vertical roads
       if (Math.abs(Math.abs(tx) - 28) < 3 || Math.abs(tx) < 3) tooClose = true;
       if (tooClose) continue;
-      positions.push([tx, tz]);
+      positions.push([tx, tz, 2 + Math.random() * 4, 0.8 + Math.random() * 1.2]);
     }
 
-    positions.forEach(function (p) {
-      var treeG = new THREE.Group();
-      var h = 2 + Math.random() * 4;
-      var r = 0.8 + Math.random() * 1.2;
+    var n = positions.length;
+    var trunkGeo = new THREE.CylinderGeometry(0.12, 0.18, 1, 4);
+    var trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.9 });
+    var trunkIM = new THREE.InstancedMesh(trunkGeo, trunkMat, n);
 
-      // Trunk
-      var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, h * 0.4, 5), trunkMat);
-      trunk.position.y = h * 0.2;
-      treeG.add(trunk);
+    var foliageGeo = new THREE.ConeGeometry(1, 1, 5);
+    var foliageMat = new THREE.MeshStandardMaterial({ color: 0x1a5a1a, roughness: 0.8 });
+    var foliageIM1 = new THREE.InstancedMesh(foliageGeo, foliageMat, n);
+    var foliageMat2 = new THREE.MeshStandardMaterial({ color: 0x145214, roughness: 0.85 });
+    var foliageIM2 = new THREE.InstancedMesh(foliageGeo, foliageMat2, n);
+    var foliageIM3 = new THREE.InstancedMesh(foliageGeo, foliageMat2, n);
 
-      // Foliage — 2-3 stacked cones (pine tree)
-      var mat = Math.random() > 0.5 ? treeMat : darkTreeMat;
+    var m = new THREE.Matrix4();
+    for (var i = 0; i < n; i++) {
+      var p = positions[i];
+      var h = p[2], r = p[3];
+
+      m.makeScale(1, h * 0.4, 1);
+      m.setPosition(p[0], h * 0.2, p[1]);
+      trunkIM.setMatrixAt(i, m);
+
       for (var li = 0; li < 3; li++) {
         var lr = r * (1 - li * 0.25);
         var lh = h * 0.35;
-        var foliage = new THREE.Mesh(new THREE.ConeGeometry(lr, lh, 6), mat);
-        foliage.position.y = h * 0.35 + li * lh * 0.6;
-        treeG.add(foliage);
+        m.makeScale(lr, lh, lr);
+        m.setPosition(p[0], h * 0.35 + li * lh * 0.6, p[1]);
+        [foliageIM1, foliageIM2, foliageIM3][li].setMatrixAt(i, m);
       }
+    }
 
-      treeG.position.set(p[0], 0, p[1]);
-      scene.add(treeG);
-    });
+    scene.add(trunkIM);
+    scene.add(foliageIM1);
+    scene.add(foliageIM2);
+    scene.add(foliageIM3);
   }
 
   // ─── District Styles ───
@@ -1126,11 +1137,8 @@ var MedievalKingdom = (function () {
     var flame = new THREE.Mesh(new THREE.SphereGeometry(0.12, 4, 4), flameMat);
     flame.position.set(side * (w / 2 + 0.3), torchY + 0.35, d / 2 + 0.1);
     flame.userData._isTorchFlame = true;
+    _animObjs.push(flame);
     parent.add(flame);
-
-    var torchLight = new THREE.PointLight(0xff8833, 0.8, 5, 2);
-    torchLight.position.copy(flame.position);
-    parent.add(torchLight);
   }
 
   // ─── Signature Tower ───
@@ -1183,6 +1191,7 @@ var MedievalKingdom = (function () {
     var flag = new THREE.Mesh(flagGeo, flagMat);
     flag.position.set(x + 0.6, h + roofH + 2.5, z);
     flag.userData._isFlag = true;
+    _animObjs.push(flag);
     g.add(flag);
 
     // Beacon light at top
@@ -1192,6 +1201,7 @@ var MedievalKingdom = (function () {
     );
     beacon.position.set(x, h + roofH + 0.1, z);
     beacon.userData._isBeacon = true;
+    _animObjs.push(beacon);
     g.add(beacon);
 
     return g;
@@ -1223,6 +1233,7 @@ var MedievalKingdom = (function () {
     var crystal = new THREE.Mesh(crystalGeo, crystalMat);
     crystal.position.set(x, h + 0.5 * scale, z);
     crystal.userData._isCrystal = true;
+    _animObjs.push(crystal);
     g.add(crystal);
 
     // Magical rings
@@ -1236,6 +1247,7 @@ var MedievalKingdom = (function () {
       ring.rotation.x = Math.PI / 2;
       ring.userData._isRing = true;
       ring.userData._ringIdx = ri;
+      _animObjs.push(ring);
       g.add(ring);
     }
 
@@ -1325,17 +1337,17 @@ var MedievalKingdom = (function () {
         var torch1 = new THREE.Mesh(new THREE.SphereGeometry(0.15, 4, 4), tMat);
         torch1.position.set(-3, poleH + 0.3, 0);
         torch1.userData._isTorchFlame = true;
+        _animObjs.push(torch1);
         group.add(torch1);
         var torch2 = torch1.clone();
+        torch2.userData._isTorchFlame = true;
         torch2.position.x = 3;
+        _animObjs.push(torch2);
         group.add(torch2);
 
         var tl1 = new THREE.PointLight(0xff8833, 2, 8, 2);
-        tl1.position.copy(torch1.position);
+        tl1.position.set(0, 6, 0);
         group.add(tl1);
-        var tl2 = new THREE.PointLight(0xff8833, 2, 8, 2);
-        tl2.position.copy(torch2.position);
-        group.add(tl2);
 
         group.traverse(function (child) {
           if (child.isMesh) child.userData._bannerGuild = def.id;
@@ -1413,7 +1425,7 @@ var MedievalKingdom = (function () {
   // ─── Fireflies ───
 
   function addFireflies() {
-    var n = 400;
+    var n = 200;
     var pos = new Float32Array(n * 3);
     var col = new Float32Array(n * 3);
     var accents = [districts.village.accent, districts.township.accent, districts.fortress.accent];
@@ -1442,7 +1454,7 @@ var MedievalKingdom = (function () {
   // ─── Stars ───
 
   function addStars() {
-    var n = 600;
+    var n = 300;
     var pos = new Float32Array(n * 3);
     for (var i = 0; i < n; i++) {
       var theta = Math.random() * Math.PI * 2;
@@ -1483,7 +1495,7 @@ var MedievalKingdom = (function () {
 
   function addStoneBridge(z) {
     var trackLen = 140;
-    var pillarSpacing = 10;
+    var pillarSpacing = 16;
 
     var bridgeMat = new THREE.MeshStandardMaterial({
       color: 0x8a8070, roughness: 0.8, metalness: 0.1,
@@ -1528,11 +1540,8 @@ var MedievalKingdom = (function () {
         );
         tFlame.position.set(px, 1.7, z + 1.3);
         tFlame.userData._isTorchFlame = true;
+        _animObjs.push(tFlame);
         scene.add(tFlame);
-
-        var tLight = new THREE.PointLight(0xff8833, 0.5, 6, 2);
-        tLight.position.copy(tFlame.position);
-        scene.add(tLight);
       }
     }
   }
@@ -1802,10 +1811,11 @@ var MedievalKingdom = (function () {
       );
       tFlame.position.set(tPos[0], tPos[1] + 1.7, tPos[2]);
       tFlame.userData._isTorchFlame = true;
+      _animObjs.push(tFlame);
       g.add(tFlame);
     }
 
-    g.traverse(function (c) { if (c.isMesh) c.userData._isCatapult = true; });
+    g.traverse(function (c) { if (c.isMesh) { c.userData._isCatapult = true; _catMeshes.push(c); } });
     scene.add(g);
 
     // Flaming boulder (hidden until launch)
@@ -2043,11 +2053,18 @@ var MedievalKingdom = (function () {
     orbit.idleTimer = 0;
   }
 
+  var _hoverThrottleTimer = 0;
   function onPointerMove(e) {
     var rect = container.getBoundingClientRect();
     mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    if (!orbit.dragging) checkHover();
+    if (!orbit.dragging) {
+      var now = performance.now();
+      if (now - _hoverThrottleTimer > 50) {
+        _hoverThrottleTimer = now;
+        checkHover();
+      }
+    }
   }
 
   function onWheel(e) {
@@ -2059,29 +2076,37 @@ var MedievalKingdom = (function () {
     orbit.idleTimer = 0;
   }
 
+  function buildHoverCache() {
+    if (_hoverCacheBuilt) return;
+    _bbMeshes = [];
+    Object.keys(banners).forEach(function (k) {
+      banners[k].traverse(function (c) { if (c.isMesh) { c.userData._bp = k; _bbMeshes.push(c); } });
+    });
+    _districtMeshes = [];
+    Object.keys(districts).forEach(function (k) {
+      districts[k].buildings.forEach(function (b) {
+        b.traverse(function (c) { if (c.isMesh) { c.userData._dk = c.userData.districtId || k; _districtMeshes.push(c); } });
+      });
+    });
+    _hoverCacheBuilt = true;
+  }
+
   function checkHover() {
     if (selectedDistrict || (selectedGuild && selectedGuild !== "_area")) {
       renderer.domElement.style.cursor = "";
       return;
     }
+    buildHoverCache();
     raycaster.setFromCamera(mouse, camera);
 
-    // Check catapult
-    var catMeshes = [];
-    scene.traverse(function (obj) { if (obj.isMesh && obj.userData._isCatapult) catMeshes.push(obj); });
-    if (raycaster.intersectObjects(catMeshes, false).length) {
+    if (raycaster.intersectObjects(_catMeshes, false).length) {
       if (hoveredDistrict) { hlDistrict(hoveredDistrict, false); hoveredDistrict = null; }
       hoveredBanner = null;
       renderer.domElement.style.cursor = "pointer";
       return;
     }
 
-    // Check banners
-    var bbMeshes = [];
-    Object.keys(banners).forEach(function (k) {
-      banners[k].traverse(function (c) { if (c.isMesh) { c.userData._bp = k; bbMeshes.push(c); } });
-    });
-    var bbHits = raycaster.intersectObjects(bbMeshes, false);
+    var bbHits = raycaster.intersectObjects(_bbMeshes, false);
     if (bbHits.length) {
       hoveredBanner = bbHits[0].object.userData._bp || null;
       if (hoveredDistrict) { hlDistrict(hoveredDistrict, false); hoveredDistrict = null; }
@@ -2090,14 +2115,7 @@ var MedievalKingdom = (function () {
     }
     hoveredBanner = null;
 
-    // Check districts
-    var meshes = [];
-    Object.keys(districts).forEach(function (k) {
-      districts[k].buildings.forEach(function (b) {
-        b.traverse(function (c) { if (c.isMesh) { c.userData._dk = c.userData.districtId || k; meshes.push(c); } });
-      });
-    });
-    var hits = raycaster.intersectObjects(meshes, false);
+    var hits = raycaster.intersectObjects(_districtMeshes, false);
     var newH = hits.length ? (hits[0].object.userData._dk || null) : null;
     if (newH !== hoveredDistrict) {
       if (hoveredDistrict) hlDistrict(hoveredDistrict, false);
@@ -2123,10 +2141,7 @@ var MedievalKingdom = (function () {
     if (_dragMoved) return;
     raycaster.setFromCamera(mouse, camera);
 
-    // Catapult click
-    var catMeshes = [];
-    scene.traverse(function (obj) { if (obj.isMesh && obj.userData._isCatapult) catMeshes.push(obj); });
-    if (raycaster.intersectObjects(catMeshes, false).length) {
+    if (raycaster.intersectObjects(_catMeshes, false).length) {
       triggerCatapult();
       return;
     }
@@ -2292,9 +2307,9 @@ var MedievalKingdom = (function () {
     animateTraffic(t, dt);
     updateBannerFade(dt);
 
-    // Animate beacons, rings, crystals, flags, torches
-    scene.traverse(function (obj) {
-      if (!obj.isMesh) return;
+    // Animate cached objects (no scene.traverse needed)
+    for (var ai = 0; ai < _animObjs.length; ai++) {
+      var obj = _animObjs[ai];
       if (obj.userData._isBeacon) {
         obj.material.opacity = 0.45 + Math.sin(t * 3) * 0.45;
       }
@@ -2327,7 +2342,7 @@ var MedievalKingdom = (function () {
         );
         obj.material.opacity = 0.7 + Math.sin(t * 9 + fi * 3) * 0.25;
       }
-    });
+    }
 
     updateLabels();
     renderer.render(scene, camera);
