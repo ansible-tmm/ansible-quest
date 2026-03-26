@@ -1,0 +1,2769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ansible Quest — The Medieval Realm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=MedievalSharp&display=swap" rel="stylesheet">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Cinzel', 'Georgia', serif;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+}
+
+#aspect-ratio-container {
+    position: relative;
+    aspect-ratio: 16/9;
+    width: min(100vw, 177.78vh);
+    height: auto;
+    overflow: hidden;
+}
+
+/* Header */
+#realm-header {
+    position: absolute;
+    top: 3vh;
+    left: 0;
+    width: 100%;
+    z-index: 4;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.4s ease;
+}
+
+#realm-header .realm-icon {
+    width: 3.5vw;
+    height: 3.5vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5vw;
+    margin-right: 0.8vw;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 8px rgba(255, 180, 50, 0.6));
+}
+
+#realm-header .realm-title {
+    color: #ffd700;
+    font-size: 2.8vw;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-shadow: 0 0 30px rgba(255, 180, 50, 0.5), 0 2px 8px rgba(0, 0, 0, 0.8);
+    font-family: 'Cinzel', serif;
+}
+
+#realm-header .realm-divider {
+    color: rgba(255, 215, 0, 0.3);
+    font-size: 2.2vw;
+    font-weight: 300;
+    margin: 0 1vw;
+}
+
+#realm-header .realm-subtitle {
+    color: rgba(255, 220, 150, 0.65);
+    font-size: 1.1vw;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-family: 'MedievalSharp', cursive;
+}
+
+#realm-header.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 3D Scene */
+#kingdom-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#kingdom-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    cursor: grab;
+}
+
+#kingdom-container canvas:active {
+    cursor: grabbing;
+}
+
+/* Main Content / Landing */
+#mainContent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+}
+
+#landingPage {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    pointer-events: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 3.4vw;
+    padding-bottom: 15.3vh;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+#landingPage.hidden,
+#landingPage.hidden .realmOption {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#landingPage.hidden ~ #landing-bottom-bar {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#landing-bottom-bar {
+    position: absolute;
+    bottom: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    pointer-events: auto;
+    z-index: 5;
+    transition: opacity 0.4s ease;
+}
+
+#guilds-btn {
+    padding: 8px 22px;
+    background: rgba(30, 20, 10, 0.75);
+    border: 1px solid rgba(255, 200, 80, 0.25);
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255, 220, 150, 0.85);
+    font-size: 0.95vw;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.15s;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+}
+
+#guilds-btn:hover {
+    background: rgba(60, 40, 15, 0.85);
+    border-color: rgba(255, 200, 80, 0.5);
+    color: #ffd700;
+    transform: scale(1.05);
+}
+
+#compass-btn {
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    opacity: 0.85;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+    transition: opacity 0.4s, filter 0.3s;
+    flex-shrink: 0;
+}
+
+#compass-btn:hover {
+    opacity: 1;
+    filter: drop-shadow(0 2px 10px rgba(255,180,50,0.4));
+}
+
+#compass-btn svg { transition: transform 0.15s ease-out; }
+
+.realmOption {
+    pointer-events: auto;
+    width: 14vw;
+    padding: 2.5vh 1.5vw;
+    background: rgba(20, 15, 8, 0.65);
+    border: 1px solid rgba(255, 200, 80, 0.15);
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: opacity 0.4s ease, transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.realmOption span {
+    color: #fff;
+    font-size: 1.8vw;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-family: 'Cinzel', serif;
+}
+
+.realmOption:hover {
+    transform: scale(1.05);
+    background: rgba(40, 30, 12, 0.8);
+}
+
+#village {
+    border-color: rgba(45, 106, 79, 0.4);
+}
+#village span {
+    text-shadow: 0 0 20px #2d6a4f, 0 0 40px rgba(45, 106, 79, 0.3);
+    color: #74c69d;
+}
+#village:hover {
+    border-color: rgba(45, 106, 79, 0.7);
+    background: rgba(45, 106, 79, 0.15);
+}
+
+#township {
+    border-color: rgba(123, 44, 191, 0.4);
+}
+#township span {
+    text-shadow: 0 0 20px #7b2cbf, 0 0 40px rgba(123, 44, 191, 0.3);
+    color: #c77dff;
+}
+#township:hover {
+    border-color: rgba(123, 44, 191, 0.7);
+    background: rgba(123, 44, 191, 0.15);
+}
+
+#fortress {
+    border-color: rgba(157, 2, 8, 0.4);
+}
+#fortress span {
+    text-shadow: 0 0 20px #9d0208, 0 0 40px rgba(157, 2, 8, 0.3);
+    color: #e5383b;
+}
+#fortress:hover {
+    border-color: rgba(157, 2, 8, 0.7);
+    background: rgba(157, 2, 8, 0.15);
+}
+
+/* Fullscreen Button */
+#go-fullscreen {
+    position: absolute;
+    z-index: 1000;
+    left: 52%;
+    top: 19%;
+    width: 8%;
+    height: 10%;
+    background-color: rgba(255, 255, 255, 0);
+    border: unset;
+    cursor: pointer;
+}
+
+/* Page Heading */
+#page-heading {
+    position: absolute;
+    top: 2.5vh;
+    left: 2.5vw;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8vw;
+}
+
+#page-heading.visible { opacity: 1; }
+
+#page-heading .heading-icon {
+    font-size: 3vh;
+    filter: drop-shadow(0 0 6px rgba(255, 180, 50, 0.5));
+}
+
+#page-heading .heading-title {
+    color: #ffd700;
+    font-size: 2.2vw;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    font-family: 'Cinzel', serif;
+}
+
+/* Main Menu */
+#main-menu {
+    position: absolute;
+    top: 30%;
+    left: 2.6%;
+    z-index: 10;
+    color: #fff;
+    text-align: center;
+    transform: translateX(calc(-100% - 2.6vw));
+    transition: transform 0.4s ease;
+    height: auto;
+    width: 17%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#main-menu.visible { transform: translateX(0); }
+
+.menu-item-text {
+    width: 100%;
+    color: rgba(255, 220, 150, 0.9);
+    font-size: 1.05vw;
+    font-weight: 700;
+    padding: 1.4vh 1vw;
+    line-height: 1.3;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 4px;
+    background-color: rgba(30, 20, 10, 0.7);
+    border: 1px solid rgba(255, 200, 80, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease, color 0.15s;
+    font-family: 'MedievalSharp', cursive;
+    text-align: left;
+}
+
+.menu-item-text:hover {
+    background-color: rgba(60, 40, 15, 0.85);
+    border-color: rgba(255, 200, 80, 0.35);
+    transform: scale(1.03);
+    color: #ffd700;
+}
+
+.menu-item-text.on {
+    background-color: rgba(80, 50, 15, 0.9);
+    border-color: rgba(255, 200, 80, 0.5);
+    color: #ffd700;
+}
+
+/* Guild Menu */
+#guild-heading {
+    position: absolute;
+    top: 2.5vh;
+    left: 2.5vw;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8vw;
+}
+
+#guild-heading.visible { opacity: 1; }
+
+#guild-heading .heading-title {
+    color: #ffd700;
+    font-size: 2.2vw;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    font-family: 'Cinzel', serif;
+}
+
+#guild-menu {
+    position: absolute;
+    top: 30%;
+    left: 2.6%;
+    z-index: 10;
+    color: #fff;
+    transform: translateX(calc(-100% - 2.6vw));
+    transition: transform 0.4s ease;
+    width: 15%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+#guild-menu.visible { transform: translateX(0); }
+#guild-menu.hidden {
+    transform: translateX(calc(-100% - 2.6vw));
+    pointer-events: none;
+}
+
+.guild-menu-btn {
+    width: 100%;
+    color: rgba(255, 220, 150, 0.9);
+    font-size: 1.05vw;
+    font-weight: 700;
+    padding: 1.2vh 1vw;
+    line-height: 1.3;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 4px;
+    background-color: rgba(30, 20, 10, 0.7);
+    border: 1px solid rgba(255, 200, 80, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease, color 0.15s;
+    font-family: 'MedievalSharp', cursive;
+}
+
+.guild-menu-btn:hover {
+    background-color: rgba(60, 40, 15, 0.85);
+    border-color: rgba(255, 200, 80, 0.35);
+    transform: scale(1.03);
+    color: #ffd700;
+}
+
+.guild-menu-btn.on {
+    background-color: rgba(80, 50, 15, 0.9);
+    border-color: rgba(255, 200, 80, 0.5);
+    color: #ffd700;
+}
+
+/* Bottom Menu */
+#bottom-menu {
+    position: absolute;
+    left: 2.6vw;
+    bottom: 3.5vh;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    transition: opacity 0.4s ease;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#bottom-menu.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#btnHome {
+    width: 3.2vw;
+    height: 3.2vw;
+    min-width: 36px;
+    min-height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(30, 20, 10, 0.75);
+    border: 1px solid rgba(255, 200, 80, 0.25);
+    border-radius: 4px;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+#btnHome:hover {
+    background: rgba(60, 40, 15, 0.85);
+    border-color: rgba(255, 200, 80, 0.5);
+    transform: scale(1.1);
+}
+
+#btnHome svg {
+    width: 60%;
+    height: 60%;
+    fill: rgba(255, 200, 80, 0.8);
+}
+
+/* Info Overlay */
+#info-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 102;
+    background: rgba(10, 8, 4, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+#info-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#info-overlay .info-card {
+    max-width: 60%;
+    padding: 4vh 4vw;
+    background: rgba(30, 20, 10, 0.9);
+    border: 1px solid rgba(255, 200, 80, 0.3);
+    border-radius: 8px;
+    color: rgba(255, 220, 150, 0.9);
+    font-family: 'MedievalSharp', cursive;
+    text-align: center;
+}
+
+#info-overlay .info-card h2 {
+    font-family: 'Cinzel', serif;
+    color: #ffd700;
+    font-size: 2.5vw;
+    margin-bottom: 2vh;
+    letter-spacing: 3px;
+}
+
+#info-overlay .info-card p {
+    font-size: 1.2vw;
+    line-height: 1.8;
+    opacity: 0.8;
+}
+
+#overlay-close-btn {
+    position: absolute;
+    top: 2.5vh;
+    right: 2.5vw;
+    z-index: 210;
+    width: 3vw;
+    height: 3vw;
+    min-width: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2vw;
+    line-height: 1;
+    color: rgba(255, 200, 80, 0.7);
+    background: rgba(30, 20, 10, 0.7);
+    border: 1px solid rgba(255, 200, 80, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, background 0.2s ease, color 0.2s ease;
+    user-select: none;
+}
+
+#overlay-close-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#overlay-close-btn:hover {
+    background: rgba(157, 2, 8, 0.7);
+    color: #ffd700;
+    border-color: rgba(255, 200, 80, 0.5);
+}
+    </style>
+</head>
+<body>
+    <div id="aspect-ratio-container">
+        <div id="kingdom-container"></div>
+
+        <div id="info-overlay">
+            <div class="info-card">
+                <h2 id="info-title"></h2>
+                <p id="info-text"></p>
+            </div>
+        </div>
+        <div id="overlay-close-btn" aria-label="Close">&times;</div>
+
+        <div id="realm-header">
+            <span class="realm-icon">&#9876;</span>
+            <span class="realm-title">Ansible Quest</span>
+            <span class="realm-divider">|</span>
+            <span class="realm-subtitle">Forge thy kingdom through the power of automation</span>
+        </div>
+
+        <div id="mainContent">
+            <div id="landingPage">
+                <div id="village" class="realmOption"><span>Village</span></div>
+                <div id="township" class="realmOption"><span>Township</span></div>
+                <div id="fortress" class="realmOption"><span>Fortress</span></div>
+                <div id="go-fullscreen"></div>
+            </div>
+            <div id="landing-bottom-bar">
+                <div id="guilds-btn">Guilds</div>
+                <div id="compass-btn" title="Reset view">
+                    <svg viewBox="0 0 48 48" width="48" height="48">
+                        <circle cx="24" cy="24" r="22" fill="rgba(30,20,10,0.8)" stroke="rgba(255,200,80,0.3)" stroke-width="1.5"/>
+                        <polygon class="compass-north" points="24,6 28,22 24,19 20,22" fill="#ffd700" opacity="0.9"/>
+                        <polygon class="compass-south" points="24,42 20,26 24,29 28,26" fill="rgba(255,200,80,0.4)"/>
+                        <circle cx="24" cy="24" r="3" fill="rgba(255,200,80,0.8)"/>
+                        <text x="24" y="5" text-anchor="middle" fill="#ffd700" font-size="7" font-weight="800" font-family="Cinzel,serif">N</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div id="guild-heading"></div>
+            <div id="guild-menu" class="hidden">
+                <div id="guild-menu-items"></div>
+            </div>
+        </div>
+
+        <div id="page-heading"></div>
+        <div id="main-menu"></div>
+
+        <div id="bottom-menu">
+            <div id="btnHome">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script>
+/* ═══════════════════════════════════════════════════════
+   MEDIEVAL KINGDOM — Warcraft 2 style overhaul
+   ═══════════════════════════════════════════════════════ */
+var MedievalKingdom = (function () {
+  var scene, camera, renderer, raycaster, mouse;
+  var clock;
+  var districts = {};
+  var targetCamPos, targetCamLook, currentCamLook;
+  var particles, stars;
+  var traffic = [];
+  var onDistrictClick = null;
+  var onBannerClick = null;
+  var selectedDistrict = null;
+  var selectedGuild = null;
+  var hoveredDistrict = null;
+  var hoveredBanner = null;
+  var animId = null;
+  var container = null;
+  var labelEls = {};
+  var banners = {};
+
+  var OVERVIEW = {
+    pos: new THREE.Vector3(0, 55, 65),
+    look: new THREE.Vector3(0, 0, -5),
+  };
+
+  var DISTRICT_CAMS = {
+    village:  { pos: new THREE.Vector3(-22, 14, 32), look: new THREE.Vector3(-28, 0, -2) },
+    township: { pos: new THREE.Vector3(5, 20, 35),   look: new THREE.Vector3(0, 0, -2) },
+    fortress: { pos: new THREE.Vector3(32, 28, 38),  look: new THREE.Vector3(28, 0, -2) },
+  };
+
+  var GUILD_AREA_CAM = {
+    pos: new THREE.Vector3(0, 18, 0),
+    look: new THREE.Vector3(0, 6, -35),
+  };
+
+  var GUILD_CAMS = {
+    warriors: { pos: new THREE.Vector3(-12, 10, -24), look: new THREE.Vector3(-12, 6, -35) },
+    mages:    { pos: new THREE.Vector3(0, 10, -24),   look: new THREE.Vector3(0, 6, -35) },
+    rangers:  { pos: new THREE.Vector3(12, 10, -24),  look: new THREE.Vector3(12, 6, -35) },
+  };
+
+  var orbit = {
+    dragging: false, startX: 0, startY: 0,
+    theta: 0, phi: 0.65, radius: 75,
+    target: new THREE.Vector3(0, 0, -5),
+    enabled: true, userControlling: false, returning: false,
+    idleTimer: 0, IDLE_RESUME: 10,
+    HOME_THETA: 0, HOME_PHI: 0.65, HOME_RADIUS: 75,
+    MIN_PHI: 0.15, MAX_PHI: Math.PI / 2 - 0.05,
+    MIN_RADIUS: 25, MAX_RADIUS: 130,
+  };
+
+  function orbitToPosition() {
+    var sp = Math.sin(orbit.phi), cp = Math.cos(orbit.phi);
+    return new THREE.Vector3(
+      orbit.target.x + orbit.radius * sp * Math.sin(orbit.theta),
+      orbit.target.y + orbit.radius * cp,
+      orbit.target.z + orbit.radius * sp * Math.cos(orbit.theta)
+    );
+  }
+
+  var _seed = 42;
+  function rand() { _seed = (_seed * 16807) % 2147483647; return (_seed - 1) / 2147483646; }
+
+  function init(el, clickCb, bbClickCb) {
+    container = el;
+    onDistrictClick = clickCb;
+    onBannerClick = bbClickCb || null;
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x06101a);
+    scene.fog = new THREE.FogExp2(0x06101a, 0.0022);
+
+    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 500);
+    camera.position.copy(OVERVIEW.pos);
+    camera.lookAt(OVERVIEW.look);
+
+    targetCamPos = OVERVIEW.pos.clone();
+    targetCamLook = OVERVIEW.look.clone();
+    currentCamLook = OVERVIEW.look.clone();
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    if (renderer.toneMapping !== undefined) renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    if (renderer.toneMappingExposure !== undefined) renderer.toneMappingExposure = 1.6;
+    container.appendChild(renderer.domElement);
+
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2(-999, -999);
+    clock = new THREE.Clock();
+
+    buildKingdom();
+    addBanners();
+    addLighting();
+    addFireflies();
+    addStars();
+    addTrees();
+    addTraffic();
+    createLabels();
+
+    container.addEventListener("pointermove", onPointerMove);
+    container.addEventListener("click", onClickHandler);
+    container.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointermove", onPointerMoveDrag);
+    container.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("resize", onResize);
+
+    var dx = OVERVIEW.pos.x - orbit.target.x;
+    var dy = OVERVIEW.pos.y - orbit.target.y;
+    var dz = OVERVIEW.pos.z - orbit.target.z;
+    orbit.radius = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    orbit.phi = Math.acos(dy / orbit.radius);
+    orbit.theta = Math.atan2(dx, dz);
+
+    animate();
+  }
+
+  // ─── Kingdom Construction ───
+
+  function buildKingdom() {
+    // Ground — rich Warcraft-green grass
+    var gGeo = new THREE.PlaneGeometry(300, 200);
+    var gMat = new THREE.MeshStandardMaterial({ color: 0x1a5a22, roughness: 0.85, metalness: 0.02 });
+    var ground = new THREE.Mesh(gGeo, gMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.1;
+    scene.add(ground);
+
+    // Subtle grass texture grid
+    var grid = new THREE.GridHelper(300, 60, 0x1e6a28, 0x185020);
+    grid.position.y = 0.01;
+    scene.add(grid);
+
+    // Dirt roads — visible tan/brown
+    var roadW = 2.2;
+    var roadMat = new THREE.MeshStandardMaterial({ color: 0x8a6a3a, roughness: 0.9, emissive: new THREE.Color(0x3a2a10), emissiveIntensity: 0.15 });
+    var hRoad = new THREE.Mesh(new THREE.PlaneGeometry(130, roadW), roadMat);
+    hRoad.rotation.x = -Math.PI / 2;
+    hRoad.position.set(0, 0.03, 14);
+    scene.add(hRoad);
+
+    [-28, 0, 28].forEach(function (x) {
+      var vRoad = new THREE.Mesh(new THREE.PlaneGeometry(roadW, 40), roadMat);
+      vRoad.rotation.x = -Math.PI / 2;
+      vRoad.position.set(x, 0.03, -4);
+      scene.add(vRoad);
+    });
+
+    // Road edges — pale stone borders
+    var edgeMat = new THREE.MeshStandardMaterial({ color: 0x9a8a6a, roughness: 0.7, metalness: 0.15 });
+    for (var ex = -60; ex <= 60; ex += 3) {
+      var edge = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.4), edgeMat);
+      edge.position.set(ex, 0.1, 14 + roadW / 2 + 0.25);
+      scene.add(edge);
+      var edge2 = edge.clone();
+      edge2.position.z = 14 - roadW / 2 - 0.25;
+      scene.add(edge2);
+    }
+
+    // Districts
+    _seed = 42;
+    makeDistrict("village",  -28, 0, 0x2d6a4f, 0x74c69d);
+    makeDistrict("township",   0, 0, 0x7b2cbf, 0xc77dff);
+    makeDistrict("fortress",  28, 0, 0x9d0208, 0xe5383b);
+
+    // Village campfires
+    addCampfires(-28, 0);
+    // Fortress moat
+    addMoat(28, 0);
+  }
+
+  function addCampfires(cx, cz) {
+    var spots = [[cx - 6, cz + 5], [cx + 5, cz - 4], [cx - 3, cz - 7], [cx + 7, cz + 7]];
+    for (var i = 0; i < spots.length; i++) {
+      var fx = spots[i][0], fz = spots[i][1];
+      var fg = new THREE.Group();
+
+      // Stone ring
+      for (var si = 0; si < 8; si++) {
+        var angle = (si / 8) * Math.PI * 2;
+        var stone = new THREE.Mesh(
+          new THREE.BoxGeometry(0.35, 0.2, 0.35),
+          new THREE.MeshStandardMaterial({ color: 0x7a7a6a, roughness: 0.9 })
+        );
+        stone.position.set(Math.cos(angle) * 0.7, 0.1, Math.sin(angle) * 0.7);
+        fg.add(stone);
+      }
+
+      // Log pile
+      var logMat = new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.85 });
+      for (var li = 0; li < 3; li++) {
+        var log = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.8, 5), logMat);
+        log.rotation.z = Math.PI / 2;
+        log.rotation.y = li * 1.0;
+        log.position.set((li - 1) * 0.15, 0.22, (li - 1) * 0.1);
+        fg.add(log);
+      }
+
+      // Flame — bright visible fire cones
+      var flameMat = new THREE.MeshBasicMaterial({ color: 0xff6622, transparent: true, opacity: 0.9 });
+      var flame1 = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.8, 6), flameMat);
+      flame1.position.set(0, 0.7, 0);
+      flame1.userData._isCampFlame = true;
+      flame1.userData._flameIdx = i;
+      fg.add(flame1);
+
+      var innerFlame = new THREE.Mesh(
+        new THREE.ConeGeometry(0.12, 0.5, 5),
+        new THREE.MeshBasicMaterial({ color: 0xffcc33, transparent: true, opacity: 0.95 })
+      );
+      innerFlame.position.set(0, 0.55, 0);
+      innerFlame.userData._isCampFlame = true;
+      innerFlame.userData._flameIdx = i + 10;
+      fg.add(innerFlame);
+
+      // Strong warm campfire light
+      var campLight = new THREE.PointLight(0xff8833, 4, 12, 1.5);
+      campLight.position.set(0, 1.0, 0);
+      fg.add(campLight);
+
+      fg.position.set(fx, 0, fz);
+      scene.add(fg);
+    }
+  }
+
+  function addMoat(cx, cz) {
+    var waterMat = new THREE.MeshStandardMaterial({
+      color: 0x1a6a9a, roughness: 0.3, metalness: 0.4,
+      emissive: new THREE.Color(0x0a3a5a), emissiveIntensity: 0.4,
+      transparent: true, opacity: 0.75,
+    });
+
+    var moatWidth = 2.0;
+    var innerR = 12.5;
+    var outerR = innerR + moatWidth;
+
+    // Moat ring — use a flat torus
+    var moatGeo = new THREE.TorusGeometry((innerR + outerR) / 2, moatWidth / 2, 4, 32);
+    var moat = new THREE.Mesh(moatGeo, waterMat);
+    moat.rotation.x = -Math.PI / 2;
+    moat.position.set(cx, 0.05, cz);
+    scene.add(moat);
+
+    // Shimmer light
+    var waterGlow = new THREE.PointLight(0x2288cc, 1.5, 20, 2);
+    waterGlow.position.set(cx, 1, cz);
+    scene.add(waterGlow);
+  }
+
+  function addTrees() {
+    var treeMat = new THREE.MeshStandardMaterial({ color: 0x1a5a1a, roughness: 0.8 });
+    var darkTreeMat = new THREE.MeshStandardMaterial({ color: 0x0e3a0e, roughness: 0.85 });
+    var trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.9 });
+
+    var positions = [];
+    // Scatter trees around the edges, avoiding districts and roads
+    for (var i = 0; i < 120; i++) {
+      var tx = (Math.random() - 0.5) * 200;
+      var tz = (Math.random() - 0.5) * 120;
+      // Avoid district centers
+      var tooClose = false;
+      [[-28, 0], [0, 0], [28, 0]].forEach(function (d) {
+        if (Math.sqrt(Math.pow(tx - d[0], 2) + Math.pow(tz - d[1], 2)) < 16) tooClose = true;
+      });
+      // Avoid main road
+      if (Math.abs(tz - 14) < 3) tooClose = true;
+      // Avoid vertical roads
+      if (Math.abs(Math.abs(tx) - 28) < 3 || Math.abs(tx) < 3) tooClose = true;
+      if (tooClose) continue;
+      positions.push([tx, tz]);
+    }
+
+    positions.forEach(function (p) {
+      var treeG = new THREE.Group();
+      var h = 2 + Math.random() * 4;
+      var r = 0.8 + Math.random() * 1.2;
+
+      // Trunk
+      var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, h * 0.4, 5), trunkMat);
+      trunk.position.y = h * 0.2;
+      treeG.add(trunk);
+
+      // Foliage — 2-3 stacked cones (pine tree)
+      var mat = Math.random() > 0.5 ? treeMat : darkTreeMat;
+      for (var li = 0; li < 3; li++) {
+        var lr = r * (1 - li * 0.25);
+        var lh = h * 0.35;
+        var foliage = new THREE.Mesh(new THREE.ConeGeometry(lr, lh, 6), mat);
+        foliage.position.y = h * 0.35 + li * lh * 0.6;
+        treeG.add(foliage);
+      }
+
+      treeG.position.set(p[0], 0, p[1]);
+      scene.add(treeG);
+    });
+  }
+
+  // ─── District Styles ───
+
+  var DISTRICT_STYLES = {
+    village: {
+      density: 0.75, heightMult: 0.12, baseHeight: 0.8,
+      minW: 1.4, maxW: 2.6, roofStyle: "peaked", towerType: "watchtower",
+    },
+    township: {
+      density: 0.72, heightMult: 0.4, baseHeight: 1.5,
+      minW: 1.2, maxW: 2.2, roofStyle: "turret", towerType: "clocktower",
+    },
+    fortress: {
+      density: 0.7, heightMult: 0.9, baseHeight: 2.0,
+      minW: 1.4, maxW: 2.8, roofStyle: "battlement", towerType: "wizardtower",
+    },
+  };
+
+  function makeDistrict(id, cx, cz, colorHex, accentHex) {
+    var group = new THREE.Group();
+    group.position.set(cx, 0, cz);
+    var color = new THREE.Color(colorHex);
+    var accent = new THREE.Color(accentHex);
+    var bList = [];
+    var style = DISTRICT_STYLES[id];
+
+    var vRoadHalf = 1.6;
+    var hRoadWorldZ = 14;
+    var hRoadHalf = 1.6;
+
+    for (var x = -10; x <= 10; x += 3.2) {
+      for (var z = -9; z <= 9; z += 3.2) {
+        if (rand() > style.density) continue;
+        var ox = (rand() - 0.5) * 0.6;
+        var oz = (rand() - 0.5) * 0.6;
+        var bx = x + ox;
+        var bz = z + oz;
+        if (Math.abs(bx) < vRoadHalf) continue;
+        if (Math.abs((cz + bz) - hRoadWorldZ) < hRoadHalf) continue;
+
+        var dist = Math.sqrt(x * x + z * z);
+        var maxH = (dist < 4 ? 18 : dist < 7 ? 12 : 7) * style.heightMult;
+        var h = style.baseHeight + rand() * maxH;
+        var w = style.minW + rand() * (style.maxW - style.minW);
+        var d = style.minW + rand() * (style.maxW - style.minW);
+
+        var b = makeBuilding(bx, bz, w, h, d, color, accent, style);
+        b.userData.districtId = id;
+        group.add(b);
+        bList.push(b);
+      }
+    }
+
+    // Signature structures
+    var sigTower = makeSignatureTower(id, -5, -2, color, accent);
+    sigTower.userData.districtId = id;
+    group.add(sigTower);
+    bList.push(sigTower);
+
+    var wizTower = makeWizardTower(6, -6, color, accent, id === "fortress" ? 1.0 : id === "township" ? 0.7 : 0.4);
+    wizTower.userData.districtId = id;
+    group.add(wizTower);
+    bList.push(wizTower);
+
+    districts[id] = { group: group, buildings: bList, color: color, accent: accent };
+    scene.add(group);
+  }
+
+  function makeBuilding(x, z, w, h, d, color, accent, style) {
+    var g = new THREE.Group();
+    g.position.set(x, 0, z);
+
+    // Stone/wood shade — bright enough to pop against green grass
+    var stoneShade = new THREE.Color(0x9a8a6a).lerp(color.clone(), 0.1 + rand() * 0.12);
+    var wallMat = new THREE.MeshStandardMaterial({
+      color: stoneShade, roughness: 0.7, metalness: 0.12,
+      emissive: color.clone().multiplyScalar(0.08), emissiveIntensity: 1,
+    });
+
+    // Main structure
+    var geo = new THREE.BoxGeometry(w, h, d);
+    var mesh = new THREE.Mesh(geo, wallMat);
+    mesh.position.y = h / 2;
+    g.add(mesh);
+
+    // Roof based on district style
+    if (style.roofStyle === "peaked") {
+      var roofH = w * 0.5 + rand() * 0.4;
+      var roofGeo = new THREE.ConeGeometry(Math.max(w, d) * 0.72, roofH, 4);
+      var roofMat = new THREE.MeshStandardMaterial({
+        color: 0x8a6a30, roughness: 0.75, metalness: 0.05,
+        emissive: new THREE.Color(0x4a3a15), emissiveIntensity: 0.3,
+      });
+      var roof = new THREE.Mesh(roofGeo, roofMat);
+      roof.position.y = h + roofH / 2;
+      roof.rotation.y = Math.PI / 4;
+      g.add(roof);
+    } else if (style.roofStyle === "turret") {
+      var turretH = w * 0.6 + rand() * 0.5;
+      var turretGeo = new THREE.ConeGeometry(Math.max(w, d) * 0.55, turretH, 6);
+      var turretMat = new THREE.MeshStandardMaterial({
+        color: 0x4a3a60, roughness: 0.6, metalness: 0.2,
+        emissive: accent.clone().multiplyScalar(0.08), emissiveIntensity: 1,
+      });
+      var turret = new THREE.Mesh(turretGeo, turretMat);
+      turret.position.y = h + turretH / 2;
+      g.add(turret);
+    } else if (style.roofStyle === "battlement") {
+      // Crenellations
+      var crenW = 0.3;
+      var crenH = 0.5;
+      var crenMat = new THREE.MeshStandardMaterial({
+        color: stoneShade.clone().multiplyScalar(1.1), roughness: 0.7, metalness: 0.2,
+      });
+      var numCren = Math.max(2, Math.floor(w / 0.6));
+      for (var ci = 0; ci < numCren; ci++) {
+        if (ci % 2 === 0) {
+          var cren = new THREE.Mesh(new THREE.BoxGeometry(crenW, crenH, d * 0.15), crenMat);
+          cren.position.set(-w / 2 + crenW / 2 + ci * (w / numCren), h + crenH / 2, d / 2 - 0.1);
+          g.add(cren);
+          var cren2 = cren.clone();
+          cren2.position.z = -d / 2 + 0.1;
+          g.add(cren2);
+        }
+      }
+    }
+
+    // Windows — warm candlelight
+    var rows = Math.floor(h / 1.8);
+    addMedievalWindows(g, w, d, h, rows, accent);
+
+    // Occasional torch on wall
+    if (h > 3 && rand() > 0.6) {
+      addWallTorch(g, w, d, h);
+    }
+
+    return g;
+  }
+
+  function addMedievalWindows(parent, w, d, h, rows, accent) {
+    var warmColor = new THREE.Color(0xffcc66);
+    for (var r = 0; r < rows; r++) {
+      var y = 1.0 + r * 1.8;
+      if (y > h - 0.8) break;
+      if (rand() > 0.85) continue;
+
+      var op = 0.3 + rand() * 0.5;
+      var lit = rand() > 0.3;
+      var wColor = lit ? warmColor.clone().lerp(accent, 0.15) : new THREE.Color(0x1a1510);
+      var wMat = new THREE.MeshBasicMaterial({
+        color: wColor, transparent: true, opacity: op,
+        depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
+      });
+
+      var winW = 0.25 + rand() * 0.25;
+      var winH = 0.35 + rand() * 0.2;
+
+      // Front & back
+      var cols = Math.max(1, Math.floor(w / 1.2));
+      for (var c = 0; c < cols; c++) {
+        if (rand() > 0.8) continue;
+        var xOff = -w * 0.3 + c * (w * 0.6 / Math.max(1, cols - 1));
+        if (cols === 1) xOff = 0;
+        var wf = new THREE.Mesh(new THREE.PlaneGeometry(winW, winH), wMat);
+        wf.position.set(xOff, y, d / 2 + 0.07);
+        parent.add(wf);
+        var wb = wf.clone();
+        wb.position.z = -(d / 2 + 0.07);
+        wb.rotation.y = Math.PI;
+        parent.add(wb);
+      }
+
+      // Sides
+      if (rand() > 0.5) {
+        var ws = new THREE.Mesh(new THREE.PlaneGeometry(winW, winH), wMat);
+        ws.position.set(w / 2 + 0.07, y, 0);
+        ws.rotation.y = Math.PI / 2;
+        parent.add(ws);
+        var ws2 = ws.clone();
+        ws2.position.x = -(w / 2 + 0.07);
+        ws2.rotation.y = -Math.PI / 2;
+        parent.add(ws2);
+      }
+    }
+  }
+
+  function addWallTorch(parent, w, d, h) {
+    var torchY = Math.min(h * 0.6, 3);
+    var side = rand() > 0.5 ? 1 : -1;
+    var torchMat = new THREE.MeshStandardMaterial({ color: 0x4a3a20, roughness: 0.6, metalness: 0.3 });
+    var handle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.6, 4), torchMat);
+    handle.position.set(side * (w / 2 + 0.2), torchY, d / 2 + 0.1);
+    handle.rotation.z = side * 0.3;
+    parent.add(handle);
+
+    var flameMat = new THREE.MeshBasicMaterial({ color: 0xff8822, transparent: true, opacity: 0.8 });
+    var flame = new THREE.Mesh(new THREE.SphereGeometry(0.12, 4, 4), flameMat);
+    flame.position.set(side * (w / 2 + 0.3), torchY + 0.35, d / 2 + 0.1);
+    flame.userData._isTorchFlame = true;
+    parent.add(flame);
+
+    var torchLight = new THREE.PointLight(0xff8833, 0.8, 5, 2);
+    torchLight.position.copy(flame.position);
+    parent.add(torchLight);
+  }
+
+  // ─── Signature Tower ───
+
+  function makeSignatureTower(districtId, x, z, color, accent) {
+    var g = new THREE.Group();
+    var h, r1, r2;
+    if (districtId === "fortress") {
+      h = 22; r1 = 1.2; r2 = 1.8;
+    } else if (districtId === "township") {
+      h = 14; r1 = 0.8; r2 = 1.2;
+    } else {
+      h = 8; r1 = 0.6; r2 = 0.8;
+    }
+
+    // Round tower body
+    var bodyGeo = new THREE.CylinderGeometry(r1, r2, h, 8);
+    var bodyMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0x8a7a60).lerp(color.clone(), 0.2),
+      roughness: 0.65, metalness: 0.2,
+      emissive: color.clone().multiplyScalar(0.1),
+    });
+    var body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.set(x, h / 2, z);
+    g.add(body);
+
+    // Conical roof
+    var roofH = h * 0.25;
+    var roofGeo = new THREE.ConeGeometry(r1 * 1.3, roofH, 8);
+    var roofMat = new THREE.MeshStandardMaterial({
+      color: districtId === "village" ? 0x5a4a2a : districtId === "township" ? 0x4a3a60 : 0x6a1a1a,
+      roughness: 0.6, metalness: 0.1,
+    });
+    var roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.set(x, h + roofH / 2, z);
+    g.add(roof);
+
+    // Flag on top
+    var flagPole = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03, 0.03, 3, 4),
+      new THREE.MeshStandardMaterial({ color: 0x666666 })
+    );
+    flagPole.position.set(x, h + roofH + 1.5, z);
+    g.add(flagPole);
+
+    var flagGeo = new THREE.PlaneGeometry(1.2, 0.7);
+    var flagMat = new THREE.MeshBasicMaterial({
+      color: accent, transparent: true, opacity: 0.85, side: THREE.DoubleSide,
+    });
+    var flag = new THREE.Mesh(flagGeo, flagMat);
+    flag.position.set(x + 0.6, h + roofH + 2.5, z);
+    flag.userData._isFlag = true;
+    g.add(flag);
+
+    // Beacon light at top
+    var beacon = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 8, 8),
+      new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.9 })
+    );
+    beacon.position.set(x, h + roofH + 0.1, z);
+    beacon.userData._isBeacon = true;
+    g.add(beacon);
+
+    return g;
+  }
+
+  // ─── Wizard Tower ───
+
+  function makeWizardTower(x, z, color, accent, scale) {
+    scale = scale || 1.0;
+    var g = new THREE.Group();
+    var h = 14 * scale;
+
+    // Tower body
+    var pGeo = new THREE.CylinderGeometry(0.4 * scale, 0.6 * scale, h, 8);
+    var pMat = new THREE.MeshStandardMaterial({
+      color: 0x3a3a4a, roughness: 0.6, metalness: 0.3,
+      emissive: accent.clone().multiplyScalar(0.05),
+    });
+    var pole = new THREE.Mesh(pGeo, pMat);
+    pole.position.set(x, h / 2, z);
+    g.add(pole);
+
+    // Glowing crystal on top
+    var crystalGeo = new THREE.OctahedronGeometry(0.5 * scale, 0);
+    var crystalMat = new THREE.MeshStandardMaterial({
+      color: accent, emissive: accent, emissiveIntensity: 0.8,
+      transparent: true, opacity: 0.7, roughness: 0.1, metalness: 0.9,
+    });
+    var crystal = new THREE.Mesh(crystalGeo, crystalMat);
+    crystal.position.set(x, h + 0.5 * scale, z);
+    crystal.userData._isCrystal = true;
+    g.add(crystal);
+
+    // Magical rings
+    for (var ri = 0; ri < 2; ri++) {
+      var rGeo = new THREE.TorusGeometry((1.0 + ri * 0.8) * scale, 0.04, 8, 24);
+      var rMat = new THREE.MeshBasicMaterial({
+        color: accent, transparent: true, opacity: 0.2 - ri * 0.05,
+      });
+      var ring = new THREE.Mesh(rGeo, rMat);
+      ring.position.set(x, h + 0.5 * scale, z);
+      ring.rotation.x = Math.PI / 2;
+      ring.userData._isRing = true;
+      ring.userData._ringIdx = ri;
+      g.add(ring);
+    }
+
+    // Crystal glow light
+    var glow = new THREE.PointLight(accent.getHex(), 2, 12, 2);
+    glow.position.set(x, h + 0.5 * scale, z);
+    g.add(glow);
+
+    return g;
+  }
+
+  // ─── Heraldic Banners (replacing billboards) ───
+
+  var bannerFade = { target: 0, current: 0 };
+
+  function addBanners() {
+    var guildDefs = [
+      { id: "warriors", x: -12, z: -35, accent: 0xcc3333, symbol: "sword" },
+      { id: "mages",    x:   0, z: -35, accent: 0x3366cc, symbol: "staff" },
+      { id: "rangers",  x:  12, z: -35, accent: 0x33aa44, symbol: "bow" },
+    ];
+
+    for (var i = 0; i < guildDefs.length; i++) {
+      (function (def) {
+        var group = new THREE.Group();
+        group.position.set(def.x, 0, def.z);
+        group.visible = false;
+
+        // Banner poles
+        var poleMat = new THREE.MeshStandardMaterial({ color: 0x5a4a30, metalness: 0.4, roughness: 0.5 });
+        var poleH = 10;
+        var poleL = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, poleH, 6), poleMat);
+        poleL.position.set(-3, poleH / 2, 0);
+        group.add(poleL);
+        var poleR = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, poleH, 6), poleMat);
+        poleR.position.set(3, poleH / 2, 0);
+        group.add(poleR);
+
+        // Crossbar
+        var crossbar = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 6.5, 6), poleMat);
+        crossbar.rotation.z = Math.PI / 2;
+        crossbar.position.set(0, poleH - 0.5, 0);
+        group.add(crossbar);
+
+        // Banner fabric
+        var bannerW = 5.5, bannerH = 6;
+        var bannerGeo = new THREE.PlaneGeometry(bannerW, bannerH);
+        var bannerMat = new THREE.MeshStandardMaterial({
+          color: def.accent, roughness: 0.8, metalness: 0.0,
+          emissive: new THREE.Color(def.accent).multiplyScalar(0.15),
+          side: THREE.DoubleSide,
+        });
+        var banner = new THREE.Mesh(bannerGeo, bannerMat);
+        banner.position.set(0, poleH - 0.5 - bannerH / 2, 0.1);
+        group.add(banner);
+
+        // Guild symbol (simple geometric)
+        var symbolMat = new THREE.MeshBasicMaterial({ color: 0xffd700, side: THREE.DoubleSide });
+        if (def.symbol === "sword") {
+          var blade = new THREE.Mesh(new THREE.BoxGeometry(0.15, 2.5, 0.05), symbolMat);
+          blade.position.set(0, poleH - 3.5, 0.15);
+          group.add(blade);
+          var hilt = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.15, 0.05), symbolMat);
+          hilt.position.set(0, poleH - 4.5, 0.15);
+          group.add(hilt);
+        } else if (def.symbol === "staff") {
+          var staff = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.8, 6), symbolMat);
+          staff.position.set(0, poleH - 3.5, 0.15);
+          group.add(staff);
+          var orb = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), symbolMat);
+          orb.position.set(0, poleH - 2.2, 0.15);
+          group.add(orb);
+        } else {
+          // Bow shape — simple arc
+          var bowGeo = new THREE.TorusGeometry(1.0, 0.06, 8, 16, Math.PI);
+          var bow = new THREE.Mesh(bowGeo, symbolMat);
+          bow.position.set(0, poleH - 3.5, 0.15);
+          bow.rotation.z = -Math.PI / 2;
+          group.add(bow);
+          var string = new THREE.Mesh(new THREE.BoxGeometry(0.03, 2.0, 0.02), symbolMat);
+          string.position.set(-0.02, poleH - 3.5, 0.15);
+          group.add(string);
+        }
+
+        // Torch lights on poles
+        var tMat = new THREE.MeshBasicMaterial({ color: 0xff8822 });
+        var torch1 = new THREE.Mesh(new THREE.SphereGeometry(0.15, 4, 4), tMat);
+        torch1.position.set(-3, poleH + 0.3, 0);
+        torch1.userData._isTorchFlame = true;
+        group.add(torch1);
+        var torch2 = torch1.clone();
+        torch2.position.x = 3;
+        group.add(torch2);
+
+        var tl1 = new THREE.PointLight(0xff8833, 2, 8, 2);
+        tl1.position.copy(torch1.position);
+        group.add(tl1);
+        var tl2 = new THREE.PointLight(0xff8833, 2, 8, 2);
+        tl2.position.copy(torch2.position);
+        group.add(tl2);
+
+        group.traverse(function (child) {
+          if (child.isMesh) child.userData._bannerGuild = def.id;
+        });
+
+        banners[def.id] = group;
+        scene.add(group);
+      })(guildDefs[i]);
+    }
+  }
+
+  function showBanners() {
+    bannerFade.target = 1;
+    Object.keys(banners).forEach(function (k) { banners[k].visible = true; });
+  }
+
+  function hideBanners() { bannerFade.target = 0; }
+
+  function updateBannerFade(dt) {
+    if (bannerFade.current === bannerFade.target) return;
+    var speed = 2.5;
+    bannerFade.current = bannerFade.target > bannerFade.current
+      ? Math.min(1, bannerFade.current + dt * speed)
+      : Math.max(0, bannerFade.current - dt * speed);
+    var opacity = bannerFade.current;
+    Object.keys(banners).forEach(function (k) {
+      banners[k].traverse(function (child) {
+        if (child.isMesh && child.material) {
+          if (child.material._origOpacity === undefined) child.material._origOpacity = child.material.opacity || 1;
+          child.material.transparent = true;
+          child.material.opacity = child.material._origOpacity * opacity;
+        }
+      });
+      if (opacity <= 0) banners[k].visible = false;
+    });
+  }
+
+  // ─── Lighting ───
+
+  function addLighting() {
+    scene.add(new THREE.AmbientLight(0x1a1830, 0.8));
+
+    // Moonlight — cool blue
+    var moon = new THREE.DirectionalLight(0x4466aa, 0.4);
+    moon.position.set(-40, 60, 30);
+    scene.add(moon);
+
+    scene.add(new THREE.HemisphereLight(0x0a1020, 0x050810, 0.3));
+
+    // District torchlight glow
+    Object.keys(districts).forEach(function (k) {
+      var d = districts[k];
+      var pl = new THREE.PointLight(d.accent, 2.5, 40, 1.5);
+      pl.position.set(d.group.position.x, 12, d.group.position.z);
+      scene.add(pl);
+    });
+
+    // General warm ground lights
+    var warmLight = new THREE.PointLight(0xff9933, 1.5, 80, 2);
+    warmLight.position.set(0, 8, 5);
+    scene.add(warmLight);
+  }
+
+  // ─── Fireflies ───
+
+  function addFireflies() {
+    var n = 400;
+    var pos = new Float32Array(n * 3);
+    var col = new Float32Array(n * 3);
+    var accents = [districts.village.accent, districts.township.accent, districts.fortress.accent];
+    var warmGold = new THREE.Color(0xffcc44);
+
+    for (var i = 0; i < n; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 130;
+      pos[i * 3 + 1] = 0.3 + Math.random() * 25;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 80;
+      var c = Math.random() > 0.6 ? warmGold : accents[Math.floor(Math.random() * 3)];
+      col[i * 3] = c.r;
+      col[i * 3 + 1] = c.g;
+      col[i * 3 + 2] = c.b;
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    var mat = new THREE.PointsMaterial({
+      size: 0.15, vertexColors: true, transparent: true, opacity: 0.5,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    particles = new THREE.Points(geo, mat);
+    scene.add(particles);
+  }
+
+  // ─── Stars ───
+
+  function addStars() {
+    var n = 600;
+    var pos = new Float32Array(n * 3);
+    for (var i = 0; i < n; i++) {
+      var theta = Math.random() * Math.PI * 2;
+      var phi = Math.random() * Math.PI * 0.4;
+      var r = 150 + Math.random() * 50;
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.cos(phi);
+      pos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    var mat = new THREE.PointsMaterial({
+      color: 0xffffff, size: 0.3, transparent: true, opacity: 0.7,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    stars = new THREE.Points(geo, mat);
+    scene.add(stars);
+  }
+
+  // ─── Traffic (Medieval) ───
+
+  function addTraffic() {
+    addDragon({ altitude: 32, speed: 0.12, cx: 0, cz: -5, rx: 55, rz: 35, phase: 0, color: 0x8b0000, wingColor: 0xaa2222 });
+    addDragon({ altitude: 40, speed: -0.08, cx: 5, cz: 0, rx: 60, rz: 25, phase: Math.PI * 0.7, color: 0x006400, wingColor: 0x228b22 });
+
+    addWagonTrain({ z: 14, y: 0.3, speed: 4, wagons: 4, color: 0x5a4a30 });
+    addStoneBridge(14);
+
+    addOgre({ road: "v", x: -28.4, speed: -3.5, phase: 10, color: 0x3a6b2a });
+    addOgre({ road: "v", x: -27.6, speed:  4,   phase: -15, color: 0x4a7b3a });
+    addOgre({ road: "v", x:  0.4,  speed:  4,   phase: 5,   color: 0x5a3a2a });
+    addOgre({ road: "v", x: -0.4,  speed: -3,   phase: -10, color: 0x3a5a2a });
+    addOgre({ road: "v", x: 28.4,  speed: -3,   phase: 0,   color: 0x6a4a2a });
+    addOgre({ road: "v", x: 27.6,  speed:  4.5, phase: -18, color: 0x4a5a1a });
+
+    addKnights();
+    addCatapult();
+  }
+
+  // ─── Dragon ───
+
+  function addDragon(cfg) {
+    var g = new THREE.Group();
+    var bodyMat = new THREE.MeshStandardMaterial({
+      color: cfg.color, emissive: new THREE.Color(cfg.color), emissiveIntensity: 0.4,
+      roughness: 0.5, metalness: 0.3,
+    });
+    var wingMat = new THREE.MeshStandardMaterial({
+      color: cfg.wingColor, emissive: new THREE.Color(cfg.wingColor), emissiveIntensity: 0.3,
+      roughness: 0.6, metalness: 0.2, transparent: true, opacity: 0.8, side: THREE.DoubleSide,
+    });
+
+    // Body
+    var body = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.15, 3.0, 6), bodyMat);
+    body.rotation.z = Math.PI / 2;
+    g.add(body);
+
+    // Head
+    var head = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.8, 6), bodyMat);
+    head.rotation.z = -Math.PI / 2;
+    head.position.set(1.8, 0.1, 0);
+    g.add(head);
+
+    // Eyes
+    var eyeMat = new THREE.MeshBasicMaterial({ color: 0xff4400 });
+    var eye1 = new THREE.Mesh(new THREE.SphereGeometry(0.06, 4, 4), eyeMat);
+    eye1.position.set(1.5, 0.2, 0.15);
+    g.add(eye1);
+    var eye2 = eye1.clone();
+    eye2.position.z = -0.15;
+    g.add(eye2);
+
+    // Wings (animated)
+    var wingGeo = new THREE.PlaneGeometry(1.8, 3.5);
+    var wingL = new THREE.Mesh(wingGeo, wingMat);
+    wingL.position.set(-0.2, 0.3, 1.8);
+    wingL.rotation.x = 0.2;
+    wingL.userData._isWing = true;
+    wingL.userData._wingDir = 1;
+    g.add(wingL);
+
+    var wingR = new THREE.Mesh(wingGeo, wingMat);
+    wingR.position.set(-0.2, 0.3, -1.8);
+    wingR.rotation.x = -0.2;
+    wingR.userData._isWing = true;
+    wingR.userData._wingDir = -1;
+    g.add(wingR);
+
+    // Tail
+    var tail = new THREE.Mesh(new THREE.ConeGeometry(0.12, 1.5, 4), bodyMat);
+    tail.rotation.z = Math.PI / 2;
+    tail.position.set(-2.0, 0, 0);
+    g.add(tail);
+
+    // Fire breath glow
+    var fireGlow = new THREE.PointLight(0xff4400, 1, 8, 2);
+    fireGlow.position.set(2.0, 0, 0);
+    g.add(fireGlow);
+
+    scene.add(g);
+    traffic.push({ type: "dragon", mesh: g, cfg: cfg });
+  }
+
+  // ─── Stone Bridge (replacing monorail track) ───
+
+  function addStoneBridge(z) {
+    var trackLen = 140;
+    var pillarSpacing = 10;
+
+    var bridgeMat = new THREE.MeshStandardMaterial({
+      color: 0x4a4a3a, roughness: 0.85, metalness: 0.1,
+      emissive: new THREE.Color(0x2a2a20), emissiveIntensity: 0.2,
+    });
+
+    // Main bridge deck
+    var deck = new THREE.Mesh(new THREE.BoxGeometry(trackLen, 0.3, 2.5), bridgeMat);
+    deck.position.set(0, 0.15, z);
+    scene.add(deck);
+
+    // Stone walls on sides
+    var wallGeo = new THREE.BoxGeometry(trackLen, 0.4, 0.2);
+    var wall1 = new THREE.Mesh(wallGeo, bridgeMat);
+    wall1.position.set(0, 0.5, z + 1.15);
+    scene.add(wall1);
+    var wall2 = wall1.clone();
+    wall2.position.z = z - 1.15;
+    scene.add(wall2);
+
+    // Support pillars (stone arches)
+    var roadXPositions = [-28, 0, 28];
+    var roadClearance = 2.5;
+
+    for (var px = -trackLen / 2 + 4; px <= trackLen / 2 - 4; px += pillarSpacing) {
+      var onRoad = false;
+      for (var ri = 0; ri < roadXPositions.length; ri++) {
+        if (Math.abs(px - roadXPositions[ri]) < roadClearance) { onRoad = true; break; }
+      }
+      if (onRoad) continue;
+
+      // Stone pillar
+      var pillar = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.5, 0.6), bridgeMat);
+      pillar.position.set(px, 0.75, z);
+      scene.add(pillar);
+
+      // Torch on alternating pillars
+      if (Math.abs(px) % 20 < 11) {
+        var tFlame = new THREE.Mesh(
+          new THREE.SphereGeometry(0.1, 4, 4),
+          new THREE.MeshBasicMaterial({ color: 0xff8822, transparent: true, opacity: 0.8 })
+        );
+        tFlame.position.set(px, 1.7, z + 1.3);
+        tFlame.userData._isTorchFlame = true;
+        scene.add(tFlame);
+
+        var tLight = new THREE.PointLight(0xff8833, 0.5, 6, 2);
+        tLight.position.copy(tFlame.position);
+        scene.add(tLight);
+      }
+    }
+  }
+
+  // ─── Wagon Train ───
+
+  function addWagonTrain(cfg) {
+    var g = new THREE.Group();
+    var woodMat = new THREE.MeshStandardMaterial({ color: cfg.color, roughness: 0.8, metalness: 0.1 });
+    var metalMat = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.6, roughness: 0.4 });
+
+    // Lead horses (2)
+    for (var hi = 0; hi < 2; hi++) {
+      var horse = makeHorse(0x5a3a20);
+      horse.position.set(4 + hi * 1.5, 0, (hi - 0.5) * 0.8);
+      horse.scale.set(0.5, 0.5, 0.5);
+      g.add(horse);
+    }
+
+    // Main wagon
+    var wagonBody = new THREE.Mesh(new THREE.BoxGeometry(3, 0.8, 1.2), woodMat);
+    wagonBody.position.set(0, 0.6, 0);
+    g.add(wagonBody);
+
+    // Wagon canopy
+    var canopyGeo = new THREE.CylinderGeometry(0.6, 0.6, 2.8, 8, 1, false, 0, Math.PI);
+    var canopyMat = new THREE.MeshStandardMaterial({ color: 0x8a7a5a, roughness: 0.9, side: THREE.DoubleSide });
+    var canopy = new THREE.Mesh(canopyGeo, canopyMat);
+    canopy.rotation.z = Math.PI / 2;
+    canopy.position.set(0, 1.2, 0);
+    g.add(canopy);
+
+    // Wheels
+    var wheelGeo = new THREE.TorusGeometry(0.3, 0.06, 6, 12);
+    var positions = [[-1.2, 0.3, 0.7], [-1.2, 0.3, -0.7], [1.2, 0.3, 0.7], [1.2, 0.3, -0.7]];
+    positions.forEach(function (p) {
+      var wheel = new THREE.Mesh(wheelGeo, metalMat);
+      wheel.position.set(p[0], p[1], p[2]);
+      wheel.rotation.y = Math.PI / 2;
+      g.add(wheel);
+    });
+
+    // Trailing wagons
+    for (var wi = 1; wi < cfg.wagons; wi++) {
+      var tw = new THREE.Group();
+      var twBody = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.6, 1.0), woodMat);
+      twBody.position.y = 0.5;
+      tw.add(twBody);
+      positions.forEach(function (p) {
+        var wh = new THREE.Mesh(wheelGeo, metalMat);
+        wh.position.set(p[0] * 0.8, p[1], p[2]);
+        wh.rotation.y = Math.PI / 2;
+        tw.add(wh);
+      });
+      tw.position.x = -wi * 3.0 - 2;
+      g.add(tw);
+    }
+
+    // Lantern on lead wagon
+    var lantern = new THREE.PointLight(0xff9933, 2, 10, 2);
+    lantern.position.set(1.5, 1.5, 0);
+    g.add(lantern);
+    var lanternMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2, 0.3, 0.2),
+      new THREE.MeshBasicMaterial({ color: 0xffaa33, transparent: true, opacity: 0.8 })
+    );
+    lanternMesh.position.copy(lantern.position);
+    g.add(lanternMesh);
+
+    g.position.set(-60, cfg.y, cfg.z);
+    scene.add(g);
+    traffic.push({ type: "wagon", mesh: g, cfg: cfg });
+  }
+
+  function makeHorse(color) {
+    var g = new THREE.Group();
+    var mat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.7, metalness: 0.1 });
+
+    // Body
+    var body = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.6, 0.5), mat);
+    body.position.y = 0.8;
+    g.add(body);
+
+    // Head
+    var head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.3), mat);
+    head.position.set(0.9, 1.2, 0);
+    head.rotation.z = 0.3;
+    g.add(head);
+
+    // Legs
+    var legGeo = new THREE.BoxGeometry(0.12, 0.6, 0.12);
+    [[-0.5, 0.3, 0.15], [-0.5, 0.3, -0.15], [0.5, 0.3, 0.15], [0.5, 0.3, -0.15]].forEach(function (p) {
+      var leg = new THREE.Mesh(legGeo, mat);
+      leg.position.set(p[0], p[1], p[2]);
+      g.add(leg);
+    });
+
+    // Tail
+    var tail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 0.08), mat);
+    tail.position.set(-0.9, 0.9, 0);
+    tail.rotation.z = -0.4;
+    g.add(tail);
+
+    return g;
+  }
+
+  // ─── Ogres ───
+
+  function addOgre(cfg) {
+    var g = new THREE.Group();
+    var skinColor = new THREE.Color(cfg.color);
+    var mat = new THREE.MeshStandardMaterial({
+      color: skinColor, roughness: 0.8, metalness: 0.1,
+      emissive: skinColor.clone().multiplyScalar(0.15), emissiveIntensity: 1,
+    });
+
+    // Body
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.5), mat);
+    body.position.y = 0.7;
+    g.add(body);
+
+    // Head
+    var head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 6, 6), mat);
+    head.position.y = 1.35;
+    g.add(head);
+
+    // Eyes
+    var eyeMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    var eye1 = new THREE.Mesh(new THREE.SphereGeometry(0.05, 4, 4), eyeMat);
+    eye1.position.set(0.12, 1.4, 0.22);
+    g.add(eye1);
+    var eye2 = eye1.clone();
+    eye2.position.x = -0.12;
+    g.add(eye2);
+
+    // Arms
+    var armGeo = new THREE.BoxGeometry(0.15, 0.6, 0.15);
+    var armL = new THREE.Mesh(armGeo, mat);
+    armL.position.set(0.45, 0.6, 0);
+    armL.rotation.z = -0.2;
+    g.add(armL);
+    var armR = armL.clone();
+    armR.position.x = -0.45;
+    armR.rotation.z = 0.2;
+    g.add(armR);
+
+    // Legs
+    var legGeo = new THREE.BoxGeometry(0.18, 0.4, 0.18);
+    var legL = new THREE.Mesh(legGeo, mat);
+    legL.position.set(0.15, 0.2, 0);
+    g.add(legL);
+    var legR = legL.clone();
+    legR.position.x = -0.15;
+    g.add(legR);
+
+    // Club
+    var clubMat = new THREE.MeshStandardMaterial({ color: 0x4a3a20, roughness: 0.8 });
+    var club = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.1, 0.8, 6), clubMat);
+    club.position.set(0.55, 0.8, 0);
+    club.rotation.z = -0.8;
+    g.add(club);
+
+    // Orient ogre in direction of travel
+    g.rotation.y = Math.PI / 2;
+    if (cfg.speed < 0) g.rotation.y = -Math.PI / 2;
+    g.position.set(cfg.x, 0, cfg.phase || 0);
+
+    scene.add(g);
+    traffic.push({ type: "ogre", mesh: g, cfg: cfg });
+  }
+
+  // ─── Knights (replacing light cycles) ───
+
+  var knightPair = null;
+
+  function makeKnightMesh(col) {
+    var g = new THREE.Group();
+    var horse = makeHorse(0x3a2a1a);
+    horse.scale.set(0.6, 0.6, 0.6);
+    g.add(horse);
+
+    // Rider
+    var armorMat = new THREE.MeshStandardMaterial({
+      color: col, emissive: col, emissiveIntensity: 0.3,
+      metalness: 0.8, roughness: 0.2,
+    });
+    var torso = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.2), armorMat);
+    torso.position.set(0, 1.0, 0);
+    g.add(torso);
+    var helm = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), armorMat);
+    helm.position.set(0, 1.25, 0);
+    g.add(helm);
+
+    // Lance
+    var lanceMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.7 });
+    var lance = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 2.0, 4), lanceMat);
+    lance.position.set(0.2, 1.0, 0);
+    lance.rotation.z = -0.3;
+    g.add(lance);
+
+    // Glow
+    var glow = new THREE.PointLight(col.getHex(), 1.5, 6);
+    glow.position.set(0, 0.5, 0);
+    g.add(glow);
+
+    return g;
+  }
+
+  function addKnights() {
+    var TRAIL_LEN = 150;
+    var LATERAL_OFFSET = 2.0;
+    var startX = -90, startZ = -45;
+
+    var colA = new THREE.Color(0xffd700);
+    var colB = new THREE.Color(0xcc3333);
+
+    var meshA = makeKnightMesh(colA);
+    var meshB = makeKnightMesh(colB);
+    meshA.position.set(startX, 0, startZ - LATERAL_OFFSET / 2);
+    meshB.position.set(startX, 0, startZ + LATERAL_OFFSET / 2);
+    scene.add(meshA);
+    scene.add(meshB);
+
+    // Dust trails
+    function makeTrail(sx, sz, color) {
+      var positions = new Float32Array(TRAIL_LEN * 3);
+      for (var i = 0; i < TRAIL_LEN; i++) {
+        positions[i * 3] = sx;
+        positions[i * 3 + 1] = 0.1;
+        positions[i * 3 + 2] = sz;
+      }
+      var geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      var mat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.4, linewidth: 2 });
+      var line = new THREE.Line(geo, mat);
+      line.frustumCulled = false;
+      scene.add(line);
+      return { line: line };
+    }
+
+    var trailA = makeTrail(startX, startZ - LATERAL_OFFSET / 2, 0xffd700);
+    var trailB = makeTrail(startX, startZ + LATERAL_OFFSET / 2, 0xcc3333);
+
+    knightPair = {
+      meshA: meshA, meshB: meshB,
+      trailA: trailA, trailB: trailB,
+      TRAIL_LEN: TRAIL_LEN, LATERAL: LATERAL_OFFSET,
+      leaderX: startX, leaderZ: startZ,
+      dirIndex: 0, speed: 16, turnTimer: 1.5, turnInterval: 2.0,
+      bounds: { minX: -120, maxX: 120, minZ: -80, maxZ: -25 },
+    };
+
+    traffic.push({ type: "knight_pair" });
+  }
+
+  // ─── Catapult (replacing rocket) ───
+
+  function addCatapult() {
+    var padX = -55, padZ = -8;
+    var g = new THREE.Group();
+    g.position.set(padX, 0, padZ);
+    var woodMat = new THREE.MeshStandardMaterial({ color: 0x5a4a30, roughness: 0.8, metalness: 0.1 });
+    var stoneMat = new THREE.MeshStandardMaterial({ color: 0x4a4a3a, roughness: 0.85, metalness: 0.1 });
+
+    // Base platform
+    var base = new THREE.Mesh(new THREE.BoxGeometry(4, 0.4, 3), stoneMat);
+    base.position.y = 0.2;
+    g.add(base);
+
+    // Frame uprights
+    var upright1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4, 0.3), woodMat);
+    upright1.position.set(-1, 2.4, 1);
+    g.add(upright1);
+    var upright2 = upright1.clone();
+    upright2.position.z = -1;
+    g.add(upright2);
+
+    // Crossbar
+    var crossbar = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 2.4), woodMat);
+    crossbar.position.set(-1, 4.4, 0);
+    g.add(crossbar);
+
+    // Arm (long beam)
+    var arm = new THREE.Mesh(new THREE.BoxGeometry(6, 0.25, 0.25), woodMat);
+    arm.position.set(1, 3.8, 0);
+    arm.rotation.z = -0.3;
+    g.add(arm);
+
+    // Counterweight
+    var cwMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.5, roughness: 0.6 });
+    var cw = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), cwMat);
+    cw.position.set(-2.5, 2.5, 0);
+    g.add(cw);
+
+    // Sling cup
+    var cup = new THREE.Mesh(new THREE.SphereGeometry(0.4, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2), woodMat);
+    cup.position.set(4, 4.5, 0);
+    cup.rotation.x = Math.PI;
+    g.add(cup);
+
+    // Warning torches
+    for (var ti = 0; ti < 2; ti++) {
+      var tPos = ti === 0 ? [2.2, 0.6, 1.8] : [-2.2, 0.6, 1.8];
+      var torchPole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.5, 4), woodMat);
+      torchPole.position.set(tPos[0], tPos[1] + 0.75, tPos[2]);
+      g.add(torchPole);
+      var tFlame = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 4, 4),
+        new THREE.MeshBasicMaterial({ color: 0xff6600, transparent: true, opacity: 0.9 })
+      );
+      tFlame.position.set(tPos[0], tPos[1] + 1.7, tPos[2]);
+      tFlame.userData._isTorchFlame = true;
+      g.add(tFlame);
+    }
+
+    g.traverse(function (c) { if (c.isMesh) c.userData._isCatapult = true; });
+    scene.add(g);
+
+    // Flaming boulder (hidden until launch)
+    var boulder = new THREE.Group();
+    boulder.position.set(padX, -100, padZ);
+
+    var rockGeo = new THREE.IcosahedronGeometry(0.5, 0);
+    var rockMat = new THREE.MeshStandardMaterial({ color: 0x4a3a2a, roughness: 0.9 });
+    var rock = new THREE.Mesh(rockGeo, rockMat);
+    boulder.add(rock);
+
+    var fireMat = new THREE.MeshBasicMaterial({ color: 0xff6600, transparent: true, opacity: 0.7 });
+    var fire = new THREE.Mesh(new THREE.SphereGeometry(0.7, 6, 6), fireMat);
+    fire.userData._isBoulderFire = true;
+    boulder.add(fire);
+
+    var fireLight = new THREE.PointLight(0xff6600, 4, 15, 2);
+    boulder.add(fireLight);
+
+    scene.add(boulder);
+
+    // Smoke particles
+    var smokeCount = 40;
+    var smokeGeo = new THREE.BufferGeometry();
+    var smokePos = new Float32Array(smokeCount * 3);
+    for (var si = 0; si < smokeCount; si++) {
+      smokePos[si * 3] = padX;
+      smokePos[si * 3 + 1] = -100;
+      smokePos[si * 3 + 2] = padZ;
+    }
+    smokeGeo.setAttribute("position", new THREE.BufferAttribute(smokePos, 3));
+    var smokeMat = new THREE.PointsMaterial({
+      color: 0x888888, size: 0.6, transparent: true, opacity: 0.4, depthWrite: false,
+    });
+    var smoke = new THREE.Points(smokeGeo, smokeMat);
+    scene.add(smoke);
+
+    traffic.push({
+      type: "catapult", boulder: boulder, smoke: smoke,
+      smokeVelocities: [],
+      padX: padX, padZ: padZ, padY: 5.0,
+      state: "ready", timer: 8,
+      launchVelX: 0, launchVelY: 0,
+      CYCLE: 20, COUNTDOWN: 1.5, FLIGHT_TIME: 6,
+    });
+  }
+
+  // ─── Animate Traffic ───
+
+  function animateTraffic(t, dt) {
+    for (var i = 0; i < traffic.length; i++) {
+      var v = traffic[i];
+
+      if (v.type === "dragon") {
+        var c = v.cfg;
+        var angle = c.phase + t * c.speed;
+        var x = c.cx + Math.cos(angle) * c.rx;
+        var z = c.cz + Math.sin(angle) * c.rz;
+        v.mesh.position.set(x, c.altitude + Math.sin(t * 0.5) * 2, z);
+
+        var nextAngle = angle + 0.01 * Math.sign(c.speed);
+        v.mesh.lookAt(c.cx + Math.cos(nextAngle) * c.rx, c.altitude, c.cz + Math.sin(nextAngle) * c.rz);
+        v.mesh.rotateY(Math.PI / 2);
+
+        // Wing flap
+        v.mesh.traverse(function (ch) {
+          if (ch.userData._isWing) {
+            ch.rotation.x = ch.userData._wingDir * Math.sin(t * 4) * 0.5;
+          }
+        });
+      }
+
+      if (v.type === "wagon") {
+        v.mesh.position.x += v.cfg.speed * dt;
+        if (v.mesh.position.x > 65) v.mesh.position.x = -65;
+      }
+
+      if (v.type === "ogre") {
+        var c = v.cfg;
+        v.mesh.position.z += c.speed * dt;
+        // Bob up and down while walking
+        v.mesh.position.y = Math.abs(Math.sin(t * 3 + i * 2)) * 0.1;
+        if (c.speed > 0 && v.mesh.position.z > 14) v.mesh.position.z = -22;
+        if (c.speed < 0 && v.mesh.position.z < -22) v.mesh.position.z = 14;
+      }
+
+      if (v.type === "catapult") {
+        v.timer -= dt;
+
+        if (v.state === "ready") {
+          v.boulder.position.set(v.padX + 4, -100, v.padZ);
+          if (v.timer <= 0) {
+            v.state = "countdown";
+            v.timer = v.COUNTDOWN;
+          }
+        }
+
+        if (v.state === "countdown") {
+          // Boulder appears, catapult shakes
+          v.boulder.position.set(v.padX + 4, v.padY, v.padZ);
+          v.boulder.position.x += (Math.random() - 0.5) * 0.05;
+          if (v.timer <= 0) {
+            v.state = "launch";
+            v.timer = v.FLIGHT_TIME;
+            v.launchVelX = 8;
+            v.launchVelY = 18;
+          }
+        }
+
+        if (v.state === "launch") {
+          v.launchVelY -= 12 * dt; // gravity
+          v.boulder.position.x += v.launchVelX * dt;
+          v.boulder.position.y += v.launchVelY * dt;
+
+          // Fire flicker
+          v.boulder.traverse(function (ch) {
+            if (ch.userData._isBoulderFire) {
+              ch.scale.setScalar(0.8 + Math.sin(t * 15) * 0.3);
+            }
+          });
+
+          spawnSmoke(v, v.boulder.position.x, v.boulder.position.y - 0.5, v.boulder.position.z, 3, dt);
+
+          if (v.boulder.position.y < -5 || v.timer <= 0) {
+            v.state = "ready";
+            v.timer = v.CYCLE;
+            v.boulder.position.y = -100;
+          }
+        }
+
+        // Animate smoke particles
+        var sp = v.smoke.geometry.attributes.position.array;
+        for (var si = 0; si < v.smokeVelocities.length; si++) {
+          var sv = v.smokeVelocities[si];
+          if (!sv) continue;
+          sp[si * 3] += sv.vx * dt;
+          sp[si * 3 + 1] += sv.vy * dt;
+          sp[si * 3 + 2] += sv.vz * dt;
+          sv.life -= dt;
+          if (sv.life <= 0) { sp[si * 3 + 1] = -100; v.smokeVelocities[si] = null; }
+        }
+        v.smoke.geometry.attributes.position.needsUpdate = true;
+      }
+
+      if (v.type === "knight_pair" && knightPair) {
+        var lc = knightPair;
+        var DIR_DX = [0, 1, 0, -1], DIR_DZ = [1, 0, -1, 0];
+        var DIR_ANGLE = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+
+        lc.turnTimer -= dt;
+        if (lc.turnTimer <= 0) {
+          lc.turnTimer = lc.turnInterval + (Math.random() - 0.5) * 0.6;
+          lc.dirIndex = Math.random() < 0.5 ? (lc.dirIndex + 1) % 4 : (lc.dirIndex + 3) % 4;
+        }
+
+        var dx = DIR_DX[lc.dirIndex], dz = DIR_DZ[lc.dirIndex];
+        lc.leaderX += dx * lc.speed * dt;
+        lc.leaderZ += dz * lc.speed * dt;
+
+        var b = lc.bounds, margin = 8, bounced = false;
+        if (lc.leaderX < b.minX + margin && dx < 0) { lc.dirIndex = (Math.random() < 0.5) ? (lc.dirIndex + 1) % 4 : (lc.dirIndex + 3) % 4; lc.leaderX = b.minX + margin + 1; bounced = true; }
+        else if (lc.leaderX > b.maxX - margin && dx > 0) { lc.dirIndex = (Math.random() < 0.5) ? (lc.dirIndex + 1) % 4 : (lc.dirIndex + 3) % 4; lc.leaderX = b.maxX - margin - 1; bounced = true; }
+        if (!bounced) {
+          if (lc.leaderZ < b.minZ + margin && dz < 0) { lc.dirIndex = (Math.random() < 0.5) ? (lc.dirIndex + 1) % 4 : (lc.dirIndex + 3) % 4; lc.leaderZ = b.minZ + margin + 1; }
+          else if (lc.leaderZ > b.maxZ - margin && dz > 0) { lc.dirIndex = (Math.random() < 0.5) ? (lc.dirIndex + 1) % 4 : (lc.dirIndex + 3) % 4; lc.leaderZ = b.maxZ - margin - 1; }
+        }
+
+        var heading = DIR_ANGLE[lc.dirIndex];
+        var perpX = -Math.cos(heading), perpZ = Math.sin(heading), half = lc.LATERAL / 2;
+
+        var posAx = lc.leaderX + perpX * (-half), posAz = lc.leaderZ + perpZ * (-half);
+        var posBx = lc.leaderX + perpX * half, posBz = lc.leaderZ + perpZ * half;
+
+        lc.meshA.position.set(posAx, 0, posAz); lc.meshA.rotation.y = heading;
+        lc.meshB.position.set(posBx, 0, posBz); lc.meshB.rotation.y = heading;
+
+        // Update trails
+        var pairs = [
+          { trail: lc.trailA, px: posAx, pz: posAz },
+          { trail: lc.trailB, px: posBx, pz: posBz },
+        ];
+        for (var pi = 0; pi < 2; pi++) {
+          var tr = pairs[pi].trail;
+          var tp = tr.line.geometry.attributes.position.array;
+          for (var ti = lc.TRAIL_LEN - 1; ti > 0; ti--) {
+            tp[ti * 3] = tp[(ti - 1) * 3];
+            tp[ti * 3 + 1] = tp[(ti - 1) * 3 + 1];
+            tp[ti * 3 + 2] = tp[(ti - 1) * 3 + 2];
+          }
+          tp[0] = pairs[pi].px; tp[1] = 0.1; tp[2] = pairs[pi].pz;
+          tr.line.geometry.attributes.position.needsUpdate = true;
+        }
+      }
+    }
+  }
+
+  var _smokeIdx = 0;
+  function spawnSmoke(v, x, y, z, rate, dt) {
+    var count = Math.ceil(rate * dt * 10);
+    var sp = v.smoke.geometry.attributes.position.array;
+    var maxSmoke = sp.length / 3;
+    for (var s = 0; s < count; s++) {
+      var idx = _smokeIdx % maxSmoke;
+      _smokeIdx++;
+      sp[idx * 3] = x + (Math.random() - 0.5) * 1.0;
+      sp[idx * 3 + 1] = y;
+      sp[idx * 3 + 2] = z + (Math.random() - 0.5) * 1.0;
+      v.smokeVelocities[idx] = {
+        vx: (Math.random() - 0.5) * 3,
+        vy: 1 + Math.random() * 2,
+        vz: (Math.random() - 0.5) * 3,
+        life: 1.5 + Math.random() * 1.5,
+      };
+    }
+  }
+
+  // ─── Labels ───
+
+  function createLabels() {
+    var labelContainer = document.createElement("div");
+    labelContainer.id = "kingdom-labels";
+    labelContainer.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;";
+    container.appendChild(labelContainer);
+
+    var names = { village: "The Village", township: "The Township", fortress: "The Fortress" };
+    var colors = { village: "#74c69d", township: "#c77dff", fortress: "#e5383b" };
+
+    Object.keys(names).forEach(function (k) {
+      var el = document.createElement("div");
+      el.className = "kingdom-label";
+      el.textContent = names[k];
+      el.style.cssText =
+        "position:absolute;color:#fff;" +
+        "font-family:'Cinzel',serif;font-size:18px;font-weight:900;" +
+        "text-transform:uppercase;letter-spacing:4px;" +
+        "text-shadow:0 0 12px " + colors[k] + ",0 0 30px " + colors[k] + ",0 2px 8px rgba(0,0,0,0.8);" +
+        "background:linear-gradient(180deg," + colors[k] + "25," + colors[k] + "08);" +
+        "padding:6px 16px;border-radius:2px;" +
+        "border:1px solid " + colors[k] + "40;" +
+        "backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);" +
+        "transition:opacity 0.4s;white-space:nowrap;";
+      labelContainer.appendChild(el);
+      labelEls[k] = el;
+    });
+  }
+
+  // ─── Camera & Controls ───
+
+  function resetToHome() {
+    if (selectedDistrict || selectedGuild) return;
+    orbit.userControlling = false;
+    orbit.returning = true;
+    orbit.dragging = false;
+  }
+
+  function updateCompassRotation() {
+    var el = document.getElementById("compass-btn");
+    if (!el) return;
+    var deg = -(orbit.theta * 180 / Math.PI);
+    var svg = el.querySelector("svg");
+    if (svg) svg.style.transform = "rotate(" + deg + "deg)";
+  }
+
+  function updateLabels() {
+    Object.keys(districts).forEach(function (k) {
+      var el = labelEls[k];
+      if (!el) return;
+      var wp = districts[k].group.position.clone();
+      wp.y = 7;
+      var sp = wp.project(camera);
+      var x = (sp.x * 0.5 + 0.5) * container.clientWidth;
+      var y = (-sp.y * 0.5 + 0.5) * container.clientHeight;
+      el.style.transform = "translate(-50%,-50%) translate(" + x + "px," + y + "px)";
+      el.style.opacity = selectedDistrict ? "0" : "1";
+    });
+  }
+
+  var _dragMoved = false;
+
+  function onPointerDown(e) {
+    if (e.button !== 0) return;
+    orbit.dragging = true;
+    orbit.returning = false;
+    orbit.startX = e.clientX;
+    orbit.startY = e.clientY;
+    _dragMoved = false;
+    e.preventDefault();
+  }
+
+  function onPointerUp() { orbit.dragging = false; }
+
+  function onPointerMoveDrag(e) {
+    if (!orbit.dragging || !orbit.enabled) return;
+    var dx = e.clientX - orbit.startX, dy = e.clientY - orbit.startY;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) _dragMoved = true;
+    orbit.theta -= dx * 0.006;
+    orbit.phi = Math.max(orbit.MIN_PHI, Math.min(orbit.MAX_PHI, orbit.phi + dy * 0.006));
+    orbit.startX = e.clientX;
+    orbit.startY = e.clientY;
+    orbit.userControlling = true;
+    orbit.idleTimer = 0;
+  }
+
+  function onPointerMove(e) {
+    var rect = container.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    if (!orbit.dragging) checkHover();
+  }
+
+  function onWheel(e) {
+    e.preventDefault();
+    if (!orbit.enabled) return;
+    orbit.returning = false;
+    orbit.radius = Math.max(orbit.MIN_RADIUS, Math.min(orbit.MAX_RADIUS, orbit.radius + e.deltaY * 0.08));
+    orbit.userControlling = true;
+    orbit.idleTimer = 0;
+  }
+
+  function checkHover() {
+    if (selectedDistrict || (selectedGuild && selectedGuild !== "_area")) {
+      renderer.domElement.style.cursor = "";
+      return;
+    }
+    raycaster.setFromCamera(mouse, camera);
+
+    // Check catapult
+    var catMeshes = [];
+    scene.traverse(function (obj) { if (obj.isMesh && obj.userData._isCatapult) catMeshes.push(obj); });
+    if (raycaster.intersectObjects(catMeshes, false).length) {
+      if (hoveredDistrict) { hlDistrict(hoveredDistrict, false); hoveredDistrict = null; }
+      hoveredBanner = null;
+      renderer.domElement.style.cursor = "pointer";
+      return;
+    }
+
+    // Check banners
+    var bbMeshes = [];
+    Object.keys(banners).forEach(function (k) {
+      banners[k].traverse(function (c) { if (c.isMesh) { c.userData._bp = k; bbMeshes.push(c); } });
+    });
+    var bbHits = raycaster.intersectObjects(bbMeshes, false);
+    if (bbHits.length) {
+      hoveredBanner = bbHits[0].object.userData._bp || null;
+      if (hoveredDistrict) { hlDistrict(hoveredDistrict, false); hoveredDistrict = null; }
+      renderer.domElement.style.cursor = "pointer";
+      return;
+    }
+    hoveredBanner = null;
+
+    // Check districts
+    var meshes = [];
+    Object.keys(districts).forEach(function (k) {
+      districts[k].buildings.forEach(function (b) {
+        b.traverse(function (c) { if (c.isMesh) { c.userData._dk = c.userData.districtId || k; meshes.push(c); } });
+      });
+    });
+    var hits = raycaster.intersectObjects(meshes, false);
+    var newH = hits.length ? (hits[0].object.userData._dk || null) : null;
+    if (newH !== hoveredDistrict) {
+      if (hoveredDistrict) hlDistrict(hoveredDistrict, false);
+      if (newH) hlDistrict(newH, true);
+      hoveredDistrict = newH;
+      renderer.domElement.style.cursor = newH ? "pointer" : "";
+    }
+  }
+
+  function hlDistrict(id, on) {
+    var d = districts[id];
+    if (!d) return;
+    d.buildings.forEach(function (b) {
+      b.traverse(function (c) {
+        if (c.isMesh && c.material && c.material.emissive) {
+          c.material.emissiveIntensity = on ? 3.0 : 1;
+        }
+      });
+    });
+  }
+
+  function onClickHandler() {
+    if (_dragMoved) return;
+    raycaster.setFromCamera(mouse, camera);
+
+    // Catapult click
+    var catMeshes = [];
+    scene.traverse(function (obj) { if (obj.isMesh && obj.userData._isCatapult) catMeshes.push(obj); });
+    if (raycaster.intersectObjects(catMeshes, false).length) {
+      triggerCatapult();
+      return;
+    }
+
+    // Banner click
+    if (hoveredBanner && (!selectedGuild || selectedGuild === "_area") && onBannerClick) {
+      zoomToGuild(hoveredBanner);
+      onBannerClick(hoveredBanner);
+      return;
+    }
+
+    if (hoveredDistrict && !selectedDistrict && onDistrictClick) {
+      zoomToDistrict(hoveredDistrict);
+      onDistrictClick(hoveredDistrict);
+    }
+  }
+
+  function triggerCatapult() {
+    for (var i = 0; i < traffic.length; i++) {
+      var v = traffic[i];
+      if (v.type === "catapult" && v.state === "ready") {
+        v.state = "countdown";
+        v.timer = 0.5;
+        break;
+      }
+    }
+  }
+
+  function zoomToDistrict(id) {
+    selectedDistrict = id;
+    orbit.userControlling = false;
+    var cam = DISTRICT_CAMS[id];
+    if (cam) {
+      targetCamPos.copy(cam.pos);
+      targetCamLook.copy(cam.look);
+      orbit.target.copy(cam.look);
+      var dx = cam.pos.x - cam.look.x, dy = cam.pos.y - cam.look.y, dz = cam.pos.z - cam.look.z;
+      orbit.radius = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      orbit.phi = Math.acos(dy / orbit.radius);
+      orbit.theta = Math.atan2(dx, dz);
+    }
+    hlDistrict(id, true);
+  }
+
+  function zoomToOverview() {
+    if (selectedDistrict) hlDistrict(selectedDistrict, false);
+    selectedDistrict = null;
+    selectedGuild = null;
+    hoveredDistrict = null;
+    hoveredBanner = null;
+    orbit.userControlling = false;
+    orbit.target.copy(OVERVIEW.look);
+    var dx = OVERVIEW.pos.x - OVERVIEW.look.x, dy = OVERVIEW.pos.y - OVERVIEW.look.y, dz = OVERVIEW.pos.z - OVERVIEW.look.z;
+    orbit.radius = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    orbit.phi = Math.acos(dy / orbit.radius);
+    orbit.theta = Math.atan2(dx, dz);
+    targetCamPos.copy(OVERVIEW.pos);
+    targetCamLook.copy(OVERVIEW.look);
+  }
+
+  function zoomToGuildArea() {
+    selectedGuild = "_area";
+    selectedDistrict = null;
+    orbit.userControlling = false;
+    var cam = GUILD_AREA_CAM;
+    orbit.target.copy(cam.look);
+    var dx = cam.pos.x - cam.look.x, dy = cam.pos.y - cam.look.y, dz = cam.pos.z - cam.look.z;
+    orbit.radius = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    orbit.phi = Math.acos(dy / orbit.radius);
+    orbit.theta = Math.atan2(dx, dz);
+    targetCamPos.copy(cam.pos);
+    targetCamLook.copy(cam.look);
+  }
+
+  function zoomToGuild(guildId) {
+    selectedGuild = guildId;
+    orbit.userControlling = false;
+    var cam = GUILD_CAMS[guildId];
+    if (cam) {
+      orbit.target.copy(cam.look);
+      var dx = cam.pos.x - cam.look.x, dy = cam.pos.y - cam.look.y, dz = cam.pos.z - cam.look.z;
+      orbit.radius = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      orbit.phi = Math.acos(dy / orbit.radius);
+      orbit.theta = Math.atan2(dx, dz);
+      targetCamPos.copy(cam.pos);
+      targetCamLook.copy(cam.look);
+    }
+  }
+
+  // ─── Main Animation Loop ───
+
+  var _idle = 0;
+  function animate() {
+    animId = requestAnimationFrame(animate);
+    var dt = Math.min(clock.getDelta(), 0.05);
+    var t = clock.getElapsedTime();
+
+    // Camera logic (same as original)
+    if (orbit.userControlling) {
+      orbit.idleTimer += dt;
+      camera.position.copy(orbitToPosition());
+      camera.lookAt(orbit.target);
+      currentCamLook.copy(orbit.target);
+      targetCamPos.copy(camera.position);
+      targetCamLook.copy(orbit.target);
+      if (orbit.idleTimer > orbit.IDLE_RESUME && !selectedDistrict && !orbit.dragging) {
+        orbit.userControlling = false;
+        orbit.returning = true;
+      }
+    } else if (orbit.returning) {
+      var ls = dt * 2.5;
+      orbit.theta += (orbit.HOME_THETA - orbit.theta) * ls;
+      orbit.phi += (orbit.HOME_PHI - orbit.phi) * ls;
+      orbit.radius += (orbit.HOME_RADIUS - orbit.radius) * ls;
+      orbit.target.lerp(OVERVIEW.look, ls);
+      var op = orbitToPosition();
+      camera.position.lerp(op, ls * 2);
+      camera.lookAt(orbit.target);
+      currentCamLook.copy(orbit.target);
+      targetCamPos.copy(op);
+      targetCamLook.copy(orbit.target);
+      if (Math.abs(orbit.theta - orbit.HOME_THETA) < 0.005 && Math.abs(orbit.phi - orbit.HOME_PHI) < 0.005 && Math.abs(orbit.radius - orbit.HOME_RADIUS) < 0.1) {
+        orbit.theta = orbit.HOME_THETA;
+        orbit.phi = orbit.HOME_PHI;
+        orbit.radius = orbit.HOME_RADIUS;
+        orbit.returning = false;
+        _idle = orbit.HOME_THETA;
+      }
+    } else if (selectedDistrict || selectedGuild) {
+      camera.position.lerp(targetCamPos, dt * 2.5);
+      currentCamLook.lerp(targetCamLook, dt * 2.5);
+      camera.lookAt(currentCamLook);
+    } else {
+      _idle += dt * 0.08;
+      orbit.theta = _idle;
+      var op = orbitToPosition();
+      camera.position.lerp(op, dt * 2.0);
+      camera.lookAt(orbit.target);
+      currentCamLook.copy(orbit.target);
+      targetCamPos.copy(op);
+      targetCamLook.copy(orbit.target);
+    }
+
+    updateCompassRotation();
+
+    // Fireflies drift
+    if (particles) {
+      var pa = particles.geometry.attributes.position.array;
+      for (var i = 0; i < pa.length; i += 3) {
+        pa[i] += Math.sin(t * 0.3 + i * 0.05) * 0.003;
+        pa[i + 1] += Math.sin(t * 0.4 + i * 0.08) * 0.002;
+        if (pa[i + 1] > 30) pa[i + 1] = 0.3;
+      }
+      particles.geometry.attributes.position.needsUpdate = true;
+      particles.material.opacity = 0.35 + Math.sin(t * 0.8) * 0.15;
+    }
+
+    // Star twinkle
+    if (stars) {
+      stars.material.opacity = 0.5 + Math.sin(t * 0.3) * 0.2;
+    }
+
+    animateTraffic(t, dt);
+    updateBannerFade(dt);
+
+    // Animate beacons, rings, crystals, flags, torches
+    scene.traverse(function (obj) {
+      if (!obj.isMesh) return;
+      if (obj.userData._isBeacon) {
+        obj.material.opacity = 0.45 + Math.sin(t * 3) * 0.45;
+      }
+      if (obj.userData._isRing) {
+        obj.rotation.z = t * (0.4 + obj.userData._ringIdx * 0.2);
+        obj.material.opacity = 0.15 + Math.sin(t * 2 + obj.userData._ringIdx * 1.5) * 0.1;
+      }
+      if (obj.userData._isCrystal) {
+        obj.rotation.y = t * 0.5;
+        var s = 1 + Math.sin(t * 2) * 0.1;
+        obj.scale.set(s, s, s);
+      }
+      if (obj.userData._isFlag) {
+        obj.rotation.y = Math.sin(t * 2 + obj.position.x) * 0.15;
+      }
+      if (obj.userData._isTorchFlame) {
+        var flicker = 0.7 + Math.sin(t * 8 + obj.id * 3) * 0.2 + Math.sin(t * 13 + obj.id * 7) * 0.1;
+        obj.material.opacity = flicker;
+        var fs = 0.8 + Math.sin(t * 10 + obj.id) * 0.3;
+        obj.scale.setScalar(fs);
+      }
+    });
+
+    updateLabels();
+    renderer.render(scene, camera);
+  }
+
+  function onResize() {
+    if (!container || !camera || !renderer) return;
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  }
+
+  return {
+    init: init,
+    zoomToDistrict: zoomToDistrict,
+    zoomToOverview: zoomToOverview,
+    zoomToGuildArea: zoomToGuildArea,
+    zoomToGuild: zoomToGuild,
+    showBanners: showBanners,
+    hideBanners: hideBanners,
+    resetToHome: resetToHome,
+    resize: onResize,
+  };
+})();
+
+// ─── UI Logic ───
+
+(function () {
+  var districtHeadings = {
+    village:  { icon: "🏡", title: "The Village" },
+    township: { icon: "🏰", title: "The Township" },
+    fortress: { icon: "⚔️", title: "The Fortress" },
+  };
+
+  var districtMenuItems = {
+    village: [
+      { label: "Peasant Provisions — Inventory & Resources" },
+      { label: "The Blacksmith — Forge thy Playbooks" },
+      { label: "Village Patrol — Monitor & Protect" },
+    ],
+    township: [
+      { label: "Guild Assembly — Orchestrate thy Workflows" },
+      { label: "The Alchemist — Transform & Remediate" },
+      { label: "Town Crier — Alerts & Notifications" },
+    ],
+    fortress: [
+      { label: "The War Room — Strategic Automation" },
+      { label: "Dragon's Vault — Secrets & Credentials" },
+      { label: "The Siege Engine — Scale & Deploy" },
+    ],
+  };
+
+  var districtInfoContent = {
+    village: {
+      "Peasant Provisions — Inventory & Resources": { title: "Peasant Provisions", text: "Every great kingdom begins with knowing its people and lands. The Ansible Inventory tracks every host, every group — thy entire domain mapped and accounted for. From the humblest cottage to the tallest watchtower, all resources stand ready at thy command." },
+      "The Blacksmith — Forge thy Playbooks": { title: "The Blacksmith's Forge", text: "In the heat of the forge, raw intent becomes tempered steel. Ansible Playbooks are thy master blueprints — declarative, repeatable, and powerful. The Blacksmith shapes YAML into automated actions that ring true across thy entire realm." },
+      "Village Patrol — Monitor & Protect": { title: "Village Patrol", text: "The Village Patrol keeps watch through day and night. With Event-Driven Ansible, thy sentinels respond to threats before they breach the gates. Automated remediation turns every alert into decisive action." },
+    },
+    township: {
+      "Guild Assembly — Orchestrate thy Workflows": { title: "The Guild Assembly", text: "In the great hall of the Township, the Guild Assembly convenes. Ansible Automation Controller orchestrates complex workflows across thy entire domain — scheduling, delegating, and coordinating like a council of master craftsmen." },
+      "The Alchemist — Transform & Remediate": { title: "The Alchemist's Tower", text: "The Alchemist transforms chaos into order. When systems drift from their intended state, the Alchemist's remediation playbooks restore harmony. Self-healing infrastructure is no mere fantasy — it is the power of automation made manifest." },
+      "Town Crier — Alerts & Notifications": { title: "The Town Crier", text: "Hear ye, hear ye! The Town Crier carries word throughout the realm. Integration with thy monitoring tools means no event goes unheard. From ServiceNow to Splunk, every guild receives the intelligence they need." },
+    },
+    fortress: {
+      "The War Room — Strategic Automation": { title: "The War Room", text: "Deep within the Fortress, the War Room commands the full might of thy automation army. Ansible Lightspeed, powered by AI, accelerates thy strategies. What once took weeks now takes moments — the power of intelligent automation at thy fingertips." },
+      "Dragon's Vault — Secrets & Credentials": { title: "The Dragon's Vault", text: "Guarded by the fiercest protections, the Dragon's Vault secures thy most precious secrets. Ansible Vault encrypts credentials, API keys, and sensitive data with the strength of dragonfire. No intruder shall breach these defenses." },
+      "The Siege Engine — Scale & Deploy": { title: "The Siege Engine", text: "When the time comes to expand thy domain, the Siege Engine deploys with unstoppable force. Execution Environments ensure consistency across every battlefield. Container-native and cloud-ready, thy automation scales from village to empire." },
+    },
+  };
+
+  var guildData = {
+    warriors: { name: "Warriors Guild", icon: "⚔️" },
+    mages:    { name: "Mages Guild", icon: "🔮" },
+    rangers:  { name: "Rangers Guild", icon: "🏹" },
+  };
+
+  var currentDistrictId = null;
+  var currentGuildId = null;
+  var guildAreaActive = false;
+
+  var kingdomContainer = document.getElementById("kingdom-container");
+
+  MedievalKingdom.init(
+    kingdomContainer,
+    function (districtId) { activateDistrict(districtId); },
+    function (guildId) { activateGuild(guildId); }
+  );
+
+  // Landing page clicks
+  document.querySelectorAll(".realmOption").forEach(function (el) {
+    el.addEventListener("click", function () {
+      var id = this.id;
+      if (districtHeadings[id]) {
+        MedievalKingdom.zoomToDistrict(id);
+        activateDistrict(id);
+      }
+    });
+  });
+
+  document.getElementById("compass-btn").addEventListener("click", function (e) {
+    e.stopPropagation();
+    MedievalKingdom.resetToHome();
+  });
+
+  document.getElementById("guilds-btn").addEventListener("click", function (e) {
+    e.stopPropagation();
+    enterGuildArea();
+  });
+
+  document.getElementById("go-fullscreen").addEventListener("click", function () {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  });
+
+  document.getElementById("btnHome").addEventListener("click", goHome);
+
+  document.getElementById("overlay-close-btn").addEventListener("click", function (e) {
+    e.stopPropagation();
+    hideInfoOverlay();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      var overlay = document.getElementById("info-overlay");
+      if (overlay.classList.contains("visible")) {
+        hideInfoOverlay();
+      } else if (currentGuildId || guildAreaActive || currentDistrictId) {
+        goHome();
+      }
+    }
+  });
+
+  function activateDistrict(districtId) {
+    currentDistrictId = districtId;
+    var heading = districtHeadings[districtId];
+    var ph = document.getElementById("page-heading");
+    ph.innerHTML = "";
+    if (heading) {
+      ph.innerHTML = '<span class="heading-icon">' + heading.icon + '</span><span class="heading-title">' + heading.title + '</span>';
+    }
+    ph.classList.add("visible");
+
+    document.getElementById("landingPage").classList.add("hidden");
+    document.getElementById("realm-header").classList.add("hidden");
+    document.getElementById("bottom-menu").classList.add("visible");
+
+    setTimeout(function () {
+      buildDistrictMenu(districtId);
+      document.getElementById("main-menu").classList.add("visible");
+    }, 400);
+  }
+
+  function buildDistrictMenu(districtId) {
+    var menu = document.getElementById("main-menu");
+    menu.innerHTML = "";
+    var items = districtMenuItems[districtId] || [];
+    items.forEach(function (item) {
+      var btn = document.createElement("div");
+      btn.className = "menu-item-text";
+      btn.textContent = item.label;
+      btn.addEventListener("click", function () {
+        var wasOn = this.classList.contains("on");
+        menu.querySelectorAll(".menu-item-text").forEach(function (el) { el.classList.remove("on"); });
+        if (!wasOn) {
+          this.classList.add("on");
+          showDistrictInfo(districtId, item.label);
+        } else {
+          hideInfoOverlay();
+        }
+      });
+      menu.appendChild(btn);
+    });
+  }
+
+  function showDistrictInfo(districtId, label) {
+    var content = (districtInfoContent[districtId] || {})[label];
+    if (!content) return;
+    document.getElementById("info-title").textContent = content.title;
+    document.getElementById("info-text").textContent = content.text;
+    document.getElementById("info-overlay").classList.add("visible");
+    document.getElementById("overlay-close-btn").classList.add("visible");
+  }
+
+  function hideInfoOverlay() {
+    document.getElementById("info-overlay").classList.remove("visible");
+    document.getElementById("overlay-close-btn").classList.remove("visible");
+    document.querySelectorAll(".menu-item-text").forEach(function (el) { el.classList.remove("on"); });
+    document.querySelectorAll(".guild-menu-btn").forEach(function (el) { el.classList.remove("on"); });
+  }
+
+  function enterGuildArea() {
+    guildAreaActive = true;
+    currentGuildId = null;
+    document.getElementById("landingPage").classList.add("hidden");
+    document.getElementById("realm-header").classList.add("hidden");
+    document.getElementById("bottom-menu").classList.add("visible");
+    MedievalKingdom.showBanners();
+    MedievalKingdom.zoomToGuildArea();
+  }
+
+  function activateGuild(guildId) {
+    var guild = guildData[guildId];
+    if (!guild) return;
+    currentGuildId = guildId;
+    guildAreaActive = true;
+
+    document.getElementById("landingPage").classList.add("hidden");
+    document.getElementById("realm-header").classList.add("hidden");
+    MedievalKingdom.showBanners();
+
+    var gh = document.getElementById("guild-heading");
+    gh.innerHTML = '<span class="heading-title">' + guild.icon + ' ' + guild.name + '</span>';
+    gh.classList.add("visible");
+    document.getElementById("bottom-menu").classList.add("visible");
+
+    setTimeout(function () {
+      buildGuildMenu(guildId);
+      document.getElementById("guild-menu").classList.remove("hidden");
+      document.getElementById("guild-menu").classList.add("visible");
+    }, 400);
+  }
+
+  function buildGuildMenu(guildId) {
+    var menuItems = document.getElementById("guild-menu-items");
+    menuItems.innerHTML = "";
+    var items = [
+      { label: "Guild Charter", action: "charter" },
+      { label: "Quests & Missions", action: "quests" },
+      { label: "Armory & Artifacts", action: "armory" },
+    ];
+    items.forEach(function (item) {
+      var btn = document.createElement("div");
+      btn.className = "guild-menu-btn";
+      btn.textContent = item.label;
+      btn.addEventListener("click", function () {
+        var wasOn = this.classList.contains("on");
+        menuItems.querySelectorAll(".guild-menu-btn").forEach(function (el) { el.classList.remove("on"); });
+        if (!wasOn) {
+          this.classList.add("on");
+          showGuildInfo(guildId, item);
+        } else {
+          hideInfoOverlay();
+        }
+      });
+      menuItems.appendChild(btn);
+    });
+  }
+
+  function showGuildInfo(guildId, item) {
+    var guild = guildData[guildId];
+    document.getElementById("info-title").textContent = guild.name + " — " + item.label;
+    document.getElementById("info-text").textContent = "The " + guild.name + " " + item.label.toLowerCase() + " awaits brave adventurers. Rally thy forces and let the power of Ansible automation guide thy quest to victory!";
+    document.getElementById("info-overlay").classList.add("visible");
+    document.getElementById("overlay-close-btn").classList.add("visible");
+  }
+
+  function deactivateGuild() {
+    currentGuildId = null;
+    guildAreaActive = false;
+    hideInfoOverlay();
+    document.getElementById("guild-heading").classList.remove("visible");
+    document.getElementById("guild-menu").classList.remove("visible");
+    document.getElementById("guild-menu").classList.add("hidden");
+    document.getElementById("bottom-menu").classList.remove("visible");
+    MedievalKingdom.hideBanners();
+  }
+
+  function goHome() {
+    document.getElementById("page-heading").classList.remove("visible");
+    document.getElementById("bottom-menu").classList.remove("visible");
+    document.getElementById("main-menu").classList.remove("visible");
+    deactivateGuild();
+    hideInfoOverlay();
+
+    setTimeout(function () {
+      document.getElementById("landingPage").classList.remove("hidden");
+      document.getElementById("realm-header").classList.remove("hidden");
+      currentDistrictId = null;
+      MedievalKingdom.zoomToOverview();
+    }, 400);
+  }
+})();
+    </script>
+</body>
+</html>
