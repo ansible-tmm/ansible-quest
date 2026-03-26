@@ -1641,6 +1641,16 @@ var MedievalKingdom = (function () {
     addOgre({ road: "v", x: 29.4,  speed: -2.5, phase: 0,   color: 0x6aaa2a });
     addOgre({ road: "v", x: 26.6,  speed:  3,   phase: -18, color: 0x4abb1a });
 
+    // Peasants — small folk scurrying along the roads
+    addPeasant({ road: "v", x: -27.5, speed: 1.8,  phase: 3,  tunic: 0x8a6a3a, skin: 0xd4a574 });
+    addPeasant({ road: "v", x: -28.5, speed: -1.5, phase: -8, tunic: 0x6a4a2a, skin: 0xc49464 });
+    addPeasant({ road: "v", x:  0.6,  speed: 1.6,  phase: 7,  tunic: 0x7a5a4a, skin: 0xd4a574 });
+    addPeasant({ road: "v", x: -0.6,  speed: -2.0, phase: -3, tunic: 0x5a6a3a, skin: 0xb48454 });
+    addPeasant({ road: "v", x: 27.5,  speed: 1.5,  phase: 12, tunic: 0x6a5a3a, skin: 0xd4a574 });
+    addPeasant({ road: "v", x: 28.5,  speed: -1.8, phase: -6, tunic: 0x8a5a2a, skin: 0xc49464 });
+    addPeasant({ road: "h", z: 13.2,  speed: 2.0,  phase: 20, tunic: 0x4a5a6a, skin: 0xd4a574 });
+    addPeasant({ road: "h", z: 14.8,  speed: -1.7, phase: -30, tunic: 0x7a6a4a, skin: 0xb48454 });
+
     addCatapult();
   }
 
@@ -1788,19 +1798,27 @@ var MedievalKingdom = (function () {
     barrel.position.set(-1.3, 0.9, -0.3);
     g.add(barrel);
 
-    // Wheels — bigger, visible with spokes implied by color contrast
-    var wheelGeo = new THREE.TorusGeometry(0.4, 0.08, 6, 10);
-    var hubGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.12, 6);
+    // Wheels — solid wooden discs with metal rim and hub
+    var wheelRimMat = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.5, roughness: 0.4 });
+    var wheelWoodMat = new THREE.MeshStandardMaterial({ color: 0x6a5030, roughness: 0.8, emissive: new THREE.Color(0x2a1a08), emissiveIntensity: 0.2 });
     var wheelPositions = [[-1.3, 0.4, 0.9], [-1.3, 0.4, -0.9], [1.3, 0.4, 0.9], [1.3, 0.4, -0.9]];
     wheelPositions.forEach(function (p) {
-      var wheel = new THREE.Mesh(wheelGeo, metalMat);
-      wheel.position.set(p[0], p[1], p[2]);
-      wheel.rotation.y = Math.PI / 2;
-      g.add(wheel);
-      var hub = new THREE.Mesh(hubGeo, darkWood);
-      hub.position.set(p[0], p[1], p[2]);
+      var wg = new THREE.Group();
+      wg.position.set(p[0], p[1], p[2]);
+      var disc = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.08, 10), wheelWoodMat);
+      disc.rotation.x = Math.PI / 2;
+      wg.add(disc);
+      var rim = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.04, 6, 12), wheelRimMat);
+      wg.add(rim);
+      var hub = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.12, 6), wheelRimMat);
       hub.rotation.x = Math.PI / 2;
-      g.add(hub);
+      wg.add(hub);
+      for (var si = 0; si < 6; si++) {
+        var spoke = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.34, 0.03), wheelWoodMat);
+        spoke.rotation.z = (si / 6) * Math.PI;
+        wg.add(spoke);
+      }
+      g.add(wg);
     });
 
     // === TRAILING WAGONS — open-top supply carts ===
@@ -1829,12 +1847,24 @@ var MedievalKingdom = (function () {
         twCrate.position.set(0, 0.75, 0);
         tw.add(twCrate);
       }
-      // Wheels
+      // Wheels — solid discs matching main wagon style
       [[-0.9, 0.35, 0.75], [-0.9, 0.35, -0.75], [0.9, 0.35, 0.75], [0.9, 0.35, -0.75]].forEach(function (p) {
-        var wh = new THREE.Mesh(wheelGeo, metalMat);
-        wh.position.set(p[0], p[1], p[2]);
-        wh.rotation.y = Math.PI / 2;
-        tw.add(wh);
+        var twWg = new THREE.Group();
+        twWg.position.set(p[0], p[1], p[2]);
+        var twDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.07, 8), wheelWoodMat);
+        twDisc.rotation.x = Math.PI / 2;
+        twWg.add(twDisc);
+        var twRim = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.03, 6, 10), wheelRimMat);
+        twWg.add(twRim);
+        var twHub = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.1, 6), wheelRimMat);
+        twHub.rotation.x = Math.PI / 2;
+        twWg.add(twHub);
+        for (var tsi = 0; tsi < 5; tsi++) {
+          var tSpoke = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.26, 0.025), wheelWoodMat);
+          tSpoke.rotation.z = (tsi / 5) * Math.PI;
+          twWg.add(tSpoke);
+        }
+        tw.add(twWg);
       });
       // Hitch connecting to previous wagon
       var hitch = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.05, 0.05), ropeMat);
@@ -2154,67 +2184,238 @@ var MedievalKingdom = (function () {
     });
   }
 
+  // ─── Peasants — tiny villagers ───
+
+  function addPeasant(cfg) {
+    var g = new THREE.Group();
+    var skinMat = new THREE.MeshStandardMaterial({
+      color: cfg.skin, roughness: 0.7,
+      emissive: new THREE.Color(cfg.skin).multiplyScalar(0.15), emissiveIntensity: 1,
+    });
+    var tunicMat = new THREE.MeshStandardMaterial({
+      color: cfg.tunic, roughness: 0.8,
+      emissive: new THREE.Color(cfg.tunic).multiplyScalar(0.2), emissiveIntensity: 1,
+    });
+    var bootMat = new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 });
+    var hairMat = new THREE.MeshStandardMaterial({ color: 0x3a2a15, roughness: 0.9 });
+
+    // Body / tunic
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.35, 0.16), tunicMat);
+    body.position.y = 0.45;
+    g.add(body);
+
+    // Head
+    var head = new THREE.Mesh(new THREE.SphereGeometry(0.1, 5, 5), skinMat);
+    head.position.y = 0.72;
+    g.add(head);
+    // Hair
+    var hair = new THREE.Mesh(new THREE.SphereGeometry(0.1, 5, 5), hairMat);
+    hair.position.y = 0.76;
+    hair.scale.set(1.0, 0.6, 1.0);
+    g.add(hair);
+
+    // Arms
+    var armGeo = new THREE.BoxGeometry(0.06, 0.25, 0.06);
+    var armLPivot = new THREE.Group();
+    armLPivot.position.set(0.14, 0.55, 0);
+    var armLMesh = new THREE.Mesh(armGeo, tunicMat);
+    armLMesh.position.y = -0.12;
+    armLPivot.add(armLMesh);
+    g.add(armLPivot);
+
+    var armRPivot = new THREE.Group();
+    armRPivot.position.set(-0.14, 0.55, 0);
+    var armRMesh = new THREE.Mesh(armGeo, tunicMat);
+    armRMesh.position.y = -0.12;
+    armRPivot.add(armRMesh);
+    g.add(armRPivot);
+
+    // Legs
+    var legGeo = new THREE.BoxGeometry(0.07, 0.22, 0.07);
+    var legLPivot = new THREE.Group();
+    legLPivot.position.set(0.06, 0.28, 0);
+    var legLMesh = new THREE.Mesh(legGeo, bootMat);
+    legLMesh.position.y = -0.11;
+    legLPivot.add(legLMesh);
+    g.add(legLPivot);
+
+    var legRPivot = new THREE.Group();
+    legRPivot.position.set(-0.06, 0.28, 0);
+    var legRMesh = new THREE.Mesh(legGeo, bootMat);
+    legRMesh.position.y = -0.11;
+    legRPivot.add(legRMesh);
+    g.add(legRPivot);
+
+    // Some peasants carry things
+    var roll = Math.random();
+    if (roll < 0.3) {
+      // Sack over shoulder
+      var sack = new THREE.Mesh(new THREE.SphereGeometry(0.08, 4, 4), new THREE.MeshStandardMaterial({
+        color: 0xaa9a70, roughness: 0.9, emissive: new THREE.Color(0x4a4020), emissiveIntensity: 0.3,
+      }));
+      sack.position.set(0.12, 0.7, -0.06);
+      sack.scale.set(1.0, 0.7, 0.8);
+      g.add(sack);
+    } else if (roll < 0.5) {
+      // Walking stick
+      var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.55, 4),
+        new THREE.MeshStandardMaterial({ color: 0x6a5030, roughness: 0.8 }));
+      stick.position.set(-0.16, 0.35, 0);
+      stick.rotation.z = 0.15;
+      g.add(stick);
+    }
+
+    if (cfg.road === "v") {
+      if (cfg.speed < 0) g.rotation.y = Math.PI;
+      g.position.set(cfg.x, 0, cfg.phase || 0);
+    } else {
+      g.rotation.y = cfg.speed > 0 ? Math.PI / 2 : -Math.PI / 2;
+      g.position.set(cfg.phase || 0, 0, cfg.z);
+    }
+
+    scene.add(g);
+    traffic.push({
+      type: "peasant", mesh: g, cfg: cfg,
+      legL: legLPivot, legR: legRPivot, armL: armLPivot, armR: armRPivot,
+    });
+  }
+
   // ─── Catapult ───
 
   function addCatapult() {
     var padX = -55, padZ = -8;
     var g = new THREE.Group();
     g.position.set(padX, 0, padZ);
-    var woodMat = new THREE.MeshStandardMaterial({ color: 0x5a4a30, roughness: 0.8, metalness: 0.1 });
-    var stoneMat = new THREE.MeshStandardMaterial({ color: 0x4a4a3a, roughness: 0.85, metalness: 0.1 });
+    var woodMat = new THREE.MeshStandardMaterial({
+      color: 0xaa8045, roughness: 0.7, metalness: 0.05,
+      emissive: new THREE.Color(0x5a4020), emissiveIntensity: 0.5,
+    });
+    var stoneMat = new THREE.MeshStandardMaterial({
+      color: 0x8a8070, roughness: 0.8, metalness: 0.1,
+      emissive: new THREE.Color(0x3a3530), emissiveIntensity: 0.4,
+    });
+    var ironMat = new THREE.MeshStandardMaterial({
+      color: 0x6a6a6a, metalness: 0.6, roughness: 0.4,
+      emissive: new THREE.Color(0x2a2a2a), emissiveIntensity: 0.3,
+    });
+    var ropeMat = new THREE.MeshStandardMaterial({
+      color: 0x8a7a50, roughness: 0.9,
+      emissive: new THREE.Color(0x3a3018), emissiveIntensity: 0.3,
+    });
 
-    // Base platform
-    var base = new THREE.Mesh(new THREE.BoxGeometry(4, 0.4, 3), stoneMat);
-    base.position.y = 0.2;
+    // Base platform — stone slab
+    var base = new THREE.Mesh(new THREE.BoxGeometry(5, 0.5, 3.5), stoneMat);
+    base.position.y = 0.25;
     g.add(base);
+    var baseTop = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.15, 3), woodMat);
+    baseTop.position.y = 0.55;
+    g.add(baseTop);
 
-    // Frame uprights
-    var upright1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4, 0.3), woodMat);
-    upright1.position.set(-1, 2.4, 1);
+    // Frame uprights — thick timber
+    var upright1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.5, 0.4), woodMat);
+    upright1.position.set(-1, 2.75, 1.1);
     g.add(upright1);
     var upright2 = upright1.clone();
-    upright2.position.z = -1;
+    upright2.position.z = -1.1;
     g.add(upright2);
+    // Diagonal braces
+    var brace1 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 2.8, 0.15), woodMat);
+    brace1.position.set(-0.3, 1.8, 1.1);
+    brace1.rotation.z = 0.5;
+    g.add(brace1);
+    var brace2 = brace1.clone();
+    brace2.position.z = -1.1;
+    g.add(brace2);
 
-    // Crossbar
-    var crossbar = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 2.4), woodMat);
-    crossbar.position.set(-1, 4.4, 0);
+    // Crossbar with iron brackets
+    var crossbar = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 2.8), woodMat);
+    crossbar.position.set(-1, 5.0, 0);
     g.add(crossbar);
+    var bracket1 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.1), ironMat);
+    bracket1.position.set(-1, 5.0, 1.1);
+    g.add(bracket1);
+    var bracket2 = bracket1.clone();
+    bracket2.position.z = -1.1;
+    g.add(bracket2);
 
-    // Arm (long beam)
-    var arm = new THREE.Mesh(new THREE.BoxGeometry(6, 0.25, 0.25), woodMat);
-    arm.position.set(1, 3.8, 0);
-    arm.rotation.z = -0.3;
-    g.add(arm);
+    // === ARM ASSEMBLY — pivots at the crossbar ===
+    var armPivot = new THREE.Group();
+    armPivot.position.set(-1, 5.0, 0);
 
-    // Counterweight
-    var cwMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.5, roughness: 0.6 });
-    var cw = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), cwMat);
-    cw.position.set(-2.5, 2.5, 0);
-    g.add(cw);
+    // Arm beam — long end goes to sling (+X), short end to counterweight (-X)
+    var arm = new THREE.Mesh(new THREE.BoxGeometry(7, 0.3, 0.3), woodMat);
+    arm.position.set(2.5, 0, 0);
+    armPivot.add(arm);
+    // Iron reinforcement bands on arm
+    for (var bi = -2; bi <= 2; bi++) {
+      var band = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.38, 0.38), ironMat);
+      band.position.set(2.5 + bi * 1.4, 0, 0);
+      armPivot.add(band);
+    }
 
-    // Sling cup
-    var cup = new THREE.Mesh(new THREE.SphereGeometry(0.4, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2), woodMat);
-    cup.position.set(4, 4.5, 0);
+    // Counterweight on short end — hangs below
+    var cwMat = new THREE.MeshStandardMaterial({
+      color: 0x555555, metalness: 0.7, roughness: 0.5,
+      emissive: new THREE.Color(0x222222), emissiveIntensity: 0.3,
+    });
+    var cwChain = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 4), ironMat);
+    cwChain.position.set(-1.8, -0.7, 0);
+    armPivot.add(cwChain);
+    var cw = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.0, 0.9), cwMat);
+    cw.position.set(-1.8, -1.8, 0);
+    armPivot.add(cw);
+
+    // Sling basket on long end
+    var cup = new THREE.Mesh(new THREE.SphereGeometry(0.5, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2), ropeMat);
+    cup.position.set(5.8, -0.2, 0);
     cup.rotation.x = Math.PI;
-    g.add(cup);
+    armPivot.add(cup);
+    var sRope1 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.5, 4), ropeMat);
+    sRope1.position.set(5.0, -0.1, 0.2);
+    sRope1.rotation.z = -0.4;
+    armPivot.add(sRope1);
+    var sRope2 = sRope1.clone();
+    sRope2.position.z = -0.2;
+    armPivot.add(sRope2);
 
-    // Warning torches
-    for (var ti = 0; ti < 2; ti++) {
-      var tPos = ti === 0 ? [2.2, 0.6, 1.8] : [-2.2, 0.6, 1.8];
-      var torchPole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.5, 4), woodMat);
-      torchPole.position.set(tPos[0], tPos[1] + 0.75, tPos[2]);
+    armPivot.rotation.z = -0.25;
+    g.add(armPivot);
+
+    // Wheels at base — the catapult is on wheels
+    var wheelWood = new THREE.MeshStandardMaterial({ color: 0x7a5a2a, roughness: 0.8, emissive: new THREE.Color(0x3a2a10), emissiveIntensity: 0.3 });
+    var cwPositions = [[-2, 0.4, 2], [-2, 0.4, -2], [2, 0.4, 2], [2, 0.4, -2]];
+    cwPositions.forEach(function (p) {
+      var disc = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.1, 8), wheelWood);
+      disc.position.set(p[0], p[1], p[2]);
+      disc.rotation.x = Math.PI / 2;
+      g.add(disc);
+      var rim = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.04, 6, 10), ironMat);
+      rim.position.set(p[0], p[1], p[2]);
+      g.add(rim);
+    });
+
+    // Torches on all four corners
+    var torchSpots = [[2.8, 0.6, 2.0], [-2.8, 0.6, 2.0], [2.8, 0.6, -2.0], [-2.8, 0.6, -2.0]];
+    for (var ti = 0; ti < torchSpots.length; ti++) {
+      var tPos = torchSpots[ti];
+      var torchPole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 2.0, 4), woodMat);
+      torchPole.position.set(tPos[0], tPos[1] + 1.0, tPos[2]);
       g.add(torchPole);
       var tFlame = new THREE.Mesh(
-        new THREE.SphereGeometry(0.12, 4, 4),
+        new THREE.SphereGeometry(0.18, 4, 4),
         new THREE.MeshBasicMaterial({ color: 0xff6600, transparent: true, opacity: 0.9 })
       );
-      tFlame.position.set(tPos[0], tPos[1] + 1.7, tPos[2]);
+      tFlame.position.set(tPos[0], tPos[1] + 2.2, tPos[2]);
       tFlame.userData._isTorchFlame = true;
       _animObjs.push(tFlame);
       g.add(tFlame);
     }
+    // Warm glow illuminating the catapult
+    var catLight = new THREE.PointLight(0xff8833, 1.5, 15, 2);
+    catLight.position.set(0, 4, 0);
+    g.add(catLight);
 
+    g.rotation.y = Math.PI;
     g.traverse(function (c) { if (c.isMesh) { c.userData._isCatapult = true; _catMeshes.push(c); } });
     scene.add(g);
 
@@ -2255,11 +2456,14 @@ var MedievalKingdom = (function () {
 
     traffic.push({
       type: "catapult", boulder: boulder, smoke: smoke,
+      armPivot: armPivot,
       smokeVelocities: [],
       padX: padX, padZ: padZ, padY: 5.0,
       state: "ready", timer: 8,
       launchVelX: 0, launchVelY: 0,
-      CYCLE: 20, COUNTDOWN: 1.5, FLIGHT_TIME: 6,
+      armAngle: -0.25, armTarget: -0.25,
+      CYCLE: 20, COUNTDOWN: 2.0, FLIGHT_TIME: 6,
+      REST_ANGLE: -0.25, LOADED_ANGLE: -0.5, FIRED_ANGLE: 1.2,
     });
   }
 
@@ -2309,35 +2513,87 @@ var MedievalKingdom = (function () {
         if (c.speed < 0 && v.mesh.position.z < -22) v.mesh.position.z = 14;
       }
 
+      if (v.type === "peasant") {
+        var pc = v.cfg;
+        if (pc.road === "v") {
+          v.mesh.position.z += pc.speed * dt;
+          if (pc.speed > 0 && v.mesh.position.z > 14) v.mesh.position.z = -22;
+          if (pc.speed < 0 && v.mesh.position.z < -22) v.mesh.position.z = 14;
+        } else {
+          v.mesh.position.x += pc.speed * dt;
+          if (pc.speed > 0 && v.mesh.position.x > 65) v.mesh.position.x = -65;
+          if (pc.speed < 0 && v.mesh.position.x < -65) v.mesh.position.x = 65;
+        }
+        var pStride = t * 5.0 + i * 3.1;
+        v.legL.rotation.x = Math.sin(pStride) * 0.5;
+        v.legR.rotation.x = Math.sin(pStride + Math.PI) * 0.5;
+        v.armL.rotation.x = Math.sin(pStride + Math.PI) * 0.35;
+        v.armR.rotation.x = Math.sin(pStride) * 0.35;
+        v.mesh.position.y = Math.abs(Math.sin(pStride * 2)) * 0.02;
+      }
+
       if (v.type === "catapult") {
         v.timer -= dt;
 
+        // Group is rotated 180 so local X is mirrored in world space
+        // Arm pivot local (-1, 5.0) → world (padX+1, 5.0)
+        var pivotWorldX = v.padX + 1;
+        var pivotWorldY = 5.0;
+        var slingR = 5.8;
+
+        function slingTipX(angle) { return pivotWorldX - Math.cos(angle) * slingR; }
+        function slingTipY(angle) { return pivotWorldY + Math.sin(angle) * slingR; }
+
         if (v.state === "ready") {
-          v.boulder.position.set(v.padX + 4, -100, v.padZ);
+          v.boulder.position.set(v.padX, -100, v.padZ);
+          v.armTarget = v.REST_ANGLE;
           if (v.timer <= 0) {
+            v.state = "winch";
+            v.timer = 1.5;
+          }
+        }
+
+        if (v.state === "winch") {
+          v.armTarget = v.LOADED_ANGLE;
+          v.armAngle += (v.armTarget - v.armAngle) * dt * 1.5;
+          v.armPivot.parent.position.x = v.padX + (Math.random() - 0.5) * 0.03;
+          if (v.timer <= 0) {
+            v.armPivot.parent.position.x = v.padX;
+            v.boulder.position.set(slingTipX(v.armAngle), slingTipY(v.armAngle), v.padZ);
             v.state = "countdown";
             v.timer = v.COUNTDOWN;
           }
         }
 
         if (v.state === "countdown") {
-          // Boulder appears, catapult shakes
-          v.boulder.position.set(v.padX + 4, v.padY, v.padZ);
-          v.boulder.position.x += (Math.random() - 0.5) * 0.05;
+          v.boulder.position.set(slingTipX(v.armAngle), slingTipY(v.armAngle), v.padZ);
+          v.boulder.position.x += (Math.random() - 0.5) * 0.06;
+          v.armPivot.parent.position.x = v.padX + (Math.random() - 0.5) * 0.04;
           if (v.timer <= 0) {
-            v.state = "launch";
-            v.timer = v.FLIGHT_TIME;
-            v.launchVelX = 8;
-            v.launchVelY = 18;
+            v.armPivot.parent.position.x = v.padX;
+            v.state = "fire";
+            v.timer = 0.35;
+            v.armTarget = v.FIRED_ANGLE;
           }
         }
 
-        if (v.state === "launch") {
-          v.launchVelY -= 12 * dt; // gravity
+        if (v.state === "fire") {
+          v.armAngle += (v.armTarget - v.armAngle) * dt * 12;
+          v.boulder.position.set(slingTipX(v.armAngle), slingTipY(v.armAngle), v.padZ);
+
+          if (v.timer <= 0) {
+            v.state = "flight";
+            v.timer = v.FLIGHT_TIME;
+            v.launchVelX = 10;
+            v.launchVelY = 16;
+          }
+        }
+
+        if (v.state === "flight") {
+          v.launchVelY -= 12 * dt;
           v.boulder.position.x += v.launchVelX * dt;
           v.boulder.position.y += v.launchVelY * dt;
 
-          // Fire flicker
           v.boulder.traverse(function (ch) {
             if (ch.userData._isBoulderFire) {
               ch.scale.setScalar(0.8 + Math.sin(t * 15) * 0.3);
@@ -2346,12 +2602,19 @@ var MedievalKingdom = (function () {
 
           spawnSmoke(v, v.boulder.position.x, v.boulder.position.y - 0.5, v.boulder.position.z, 3, dt);
 
+          // Arm settles back to rest with a bounce
+          v.armAngle += (v.REST_ANGLE - v.armAngle) * dt * 2.5;
+
           if (v.boulder.position.y < -5 || v.timer <= 0) {
             v.state = "ready";
             v.timer = v.CYCLE;
             v.boulder.position.y = -100;
+            v.armAngle = v.REST_ANGLE;
           }
         }
+
+        // Apply arm rotation
+        v.armPivot.rotation.z = v.armAngle;
 
         // Animate smoke particles
         var sp = v.smoke.geometry.attributes.position.array;
