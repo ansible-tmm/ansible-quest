@@ -607,9 +607,40 @@ html, body {
     font-size: 15px;
     color: rgba(255, 220, 150, 0.8);
     line-height: 1.7;
-    white-space: pre-wrap;
     margin-bottom: 20px;
     text-align: left;
+}
+#chest-overlay .chest-text code {
+    font-family: 'Courier New', Courier, monospace;
+    background: rgba(255, 200, 80, 0.1);
+    border: 1px solid rgba(255, 200, 80, 0.15);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 0.95em;
+    color: #ffcc66;
+    white-space: nowrap;
+}
+#chest-overlay .chest-text .cmd-block {
+    display: block;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 200, 80, 0.15);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95em;
+    color: #88ff88;
+    line-height: 2;
+    text-align: left;
+}
+#chest-overlay .chest-text .prompt {
+    color: rgba(255, 200, 80, 0.5);
+    user-select: none;
+    margin-right: 6px;
+}
+#chest-overlay .chest-text .cmd-comment {
+    color: rgba(255, 220, 150, 0.4);
+    font-style: italic;
 }
 #chest-quiz { max-width: 560px; width: 100%; }
 .quiz-q {
@@ -1167,11 +1198,43 @@ html, body {
 
 #info-overlay .info-card p {
     font-size: 1.05vw;
-    white-space: pre-line;
     text-align: left;
-    line-height: 1.7;
     line-height: 1.8;
-    opacity: 0.8;
+    opacity: 0.85;
+    font-family: 'MedievalSharp', cursive;
+}
+#info-overlay .info-card p code {
+    font-family: 'Courier New', Courier, monospace;
+    background: rgba(255, 200, 80, 0.1);
+    border: 1px solid rgba(255, 200, 80, 0.15);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 0.95em;
+    color: #ffcc66;
+    white-space: nowrap;
+}
+#info-overlay .info-card .cmd-block {
+    display: block;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 200, 80, 0.15);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95em;
+    color: #88ff88;
+    line-height: 2;
+    text-align: left;
+    overflow-x: auto;
+}
+#info-overlay .info-card .cmd-block .prompt {
+    color: rgba(255, 200, 80, 0.5);
+    user-select: none;
+    margin-right: 6px;
+}
+#info-overlay .info-card .cmd-block .cmd-comment {
+    color: rgba(255, 220, 150, 0.4);
+    font-style: italic;
 }
 
 #overlay-close-btn {
@@ -1873,7 +1936,7 @@ var MedievalKingdom = (function () {
     var resultEl = document.getElementById("quiz-result");
 
     if (titleEl) titleEl.textContent = info ? info.title : ch.toolKey;
-    if (textEl) textEl.textContent = info ? info.text : "";
+    if (textEl) textEl.innerHTML = info ? (info.html || info.text) : "";
     if (earnBtn) { earnBtn.style.display = ""; earnBtn.textContent = "Earn This Chest"; }
     if (quizDiv) quizDiv.style.display = "none";
     if (resultEl) resultEl.textContent = "";
@@ -5188,47 +5251,111 @@ var sfx_sohot = new Audio("data:audio/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAWlzb21tcDQ
     ],
   };
 
+  var C = function (t) { return '<code>' + t + '</code>'; };
+  var CMD = function (lines) {
+    var out = '<div class="cmd-block">';
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i];
+      if (l.comment) out += '<span class="prompt">$</span>' + l.cmd + '  <span class="cmd-comment"># ' + l.comment + '</span>';
+      else out += '<span class="prompt">$</span>' + l.cmd;
+      if (i < lines.length - 1) out += '<br>';
+    }
+    return out + '</div>';
+  };
+
   var districtInfoContent = {
     village: {
       "⚒️ The Blacksmith's Hammer — ansible-creator": {
         title: "⚒️ The Blacksmith's Hammer — ansible-creator",
-        text: "Every great quest begins at the forge. The ansible-creator CLI scaffolds new Ansible collections, roles, and plugins with a single strike of the hammer — generating the proper directory layout, galaxy.yml, tests, and metadata so thy project starts with a battle-tested foundation.\n\nForge a new collection:\n  ansible-creator init collection myns.mycollection ./src\n\nOr use the VS Code Ansible extension's Collection Project wizard to guide thee through the process with a visual interface. The Blacksmith ensures every piece of content follows the kingdom's standards from the very first line of YAML."
+        html: 'Every great quest begins at the forge. The ' + C('ansible-creator') + ' CLI scaffolds new Ansible collections, roles, and plugins with a single strike of the hammer — generating the proper directory layout, ' + C('galaxy.yml') + ', tests, and metadata so your project starts with a battle-tested foundation.' +
+          CMD([
+            { cmd: 'ansible-creator init collection myns.mycollection ./src', comment: 'scaffold a new collection' },
+          ]) +
+          'Or use the VS Code Ansible extension\'s <strong>Collection Project</strong> wizard to guide you through the process with a visual interface. The Blacksmith ensures every piece of content follows the kingdom\'s standards from the very first line of YAML.'
       },
       "🗡️ The Whetstone — ansible-lint": {
         title: "🗡️ The Whetstone — ansible-lint",
-        text: "A dull blade serves no warrior. ansible-lint is thy Whetstone — it sharpens every playbook, role, and task file against the kingdom's best practices. It catches naming violations, deprecated syntax, risky patterns, and formatting sins before they reach the battlefield.\n\nSharpen thy blade:\n  ansible-lint --fix\n\nIn VS Code, enable the linter and set Lint Arguments to --fix. Each time thou savest a file, the Whetstone automatically hones thy code. Red squiggles mark the flaws; the --fix flag repairs what it can. What remains, thou must temper by hand — like naming thy plays, which no tool can divine for thee."
+        html: 'A dull blade serves no warrior. ' + C('ansible-lint') + ' is your Whetstone — it sharpens every playbook, role, and task file against the kingdom\'s best practices. It catches naming violations, deprecated syntax, risky patterns, and formatting sins before they reach the battlefield.' +
+          CMD([
+            { cmd: 'ansible-lint site.yml', comment: 'lint a specific playbook' },
+            { cmd: 'ansible-lint --fix', comment: 'auto-fix what it can' },
+          ]) +
+          'In VS Code, enable the linter and set Lint Arguments to ' + C('--fix') + '. Each time you save a file, the Whetstone automatically hones your code. Red squiggles mark the flaws; the ' + C('--fix') + ' flag repairs what it can. What remains, you must temper by hand — like naming your plays, which no tool can divine for you.'
       },
       "⚗️ The Alchemist's Mortar — ade": {
         title: "⚗️ The Alchemist's Mortar — ade (Ansible Dev Environment)",
-        text: "The Alchemist grinds raw ingredients into potent mixtures. ade (ansible-dev-environment) manages isolated development environments for thy collections — handling Python virtual environments, collection dependencies, and system package requirements with surgical precision.\n\nBrew thy environment:\n  ade install -e .    (editable — for active development)\n  ade install .       (frozen — for building and signing)\n  ade tree -v         (inspect the dependency tree)\n\nWhen thy collection depends on others (like ansible.netcommon), ade resolves the chain. It reads galaxy.yml dependencies, installs Python requirements, and warns thee of missing system packages. No more 'works on my machine' — the Alchemist ensures every adventurer brews the same potion."
+        html: 'The Alchemist grinds raw ingredients into potent mixtures. ' + C('ade') + ' (ansible-dev-environment) manages isolated development environments for your collections — handling Python virtual environments, collection dependencies, and system package requirements with surgical precision.' +
+          CMD([
+            { cmd: 'ade install -e .', comment: 'editable — for active development' },
+            { cmd: 'ade install .', comment: 'frozen — for building and signing' },
+            { cmd: 'ade tree -v', comment: 'inspect the dependency tree' },
+          ]) +
+          'When your collection depends on others (like ' + C('ansible.netcommon') + '), ' + C('ade') + ' resolves the chain. It reads ' + C('galaxy.yml') + ' dependencies, installs Python requirements, and warns you of missing system packages. No more "works on my machine" — the Alchemist ensures every adventurer brews the same potion.'
       },
     },
     township: {
       "🔨 The War Mace — Molecule": {
         title: "🔨 The War Mace — Molecule",
-        text: "The War Mace strikes with devastating force across the entire battlefield. Molecule provides full integration testing for thy Ansible roles and collections — spinning up real containers, running thy code against them, then verifying the results and tearing everything down.\n\nSwing the mace:\n  molecule test -s integration_hello_world\n  molecule converge    (run playbook only)\n  molecule verify      (run assertions only)\n  molecule login       (enter the test container)\n  molecule destroy     (tear down environment)\n\nMolecule's lifecycle: dependency → create → prepare → converge → verify → destroy. Define thy test scenarios in molecule.yml with platforms, provisioners, and verifiers. Write assertion tasks to confirm thy code did what it claimed. The War Mace leaves no stone unturned."
+        html: 'The War Mace strikes with devastating force across the entire battlefield. ' + C('molecule') + ' provides full integration testing for your Ansible roles and collections — spinning up real containers, running your code against them, then verifying the results and tearing everything down.' +
+          CMD([
+            { cmd: 'molecule test', comment: 'full lifecycle' },
+            { cmd: 'molecule converge', comment: 'run playbook only' },
+            { cmd: 'molecule verify', comment: 'run assertions only' },
+            { cmd: 'molecule login', comment: 'enter the test container' },
+            { cmd: 'molecule destroy', comment: 'tear down environment' },
+          ]) +
+          'Molecule\'s lifecycle: <strong>dependency → create → prepare → converge → verify → destroy</strong>. Define your test scenarios in ' + C('molecule.yml') + ' with platforms, provisioners, and verifiers. Write assertion tasks to confirm your code did what it claimed.'
       },
       "🏹 The Crossbow — pytest-ansible": {
         title: "🏹 The Crossbow — pytest-ansible",
-        text: "Where the War Mace is broad, the Crossbow is precise. pytest-ansible is a pytest plugin that lets thee write fast, targeted tests for individual Ansible modules and plugins — without spinning up full environments.\n\nTake aim:\n  pytest -v -s\n\nUse the ansible_module fixture in thy test files to call modules directly and assert on their return values. Set up a conftest.py with ANSIBLE_LIBRARY and ANSIBLE_COLLECTIONS_PATH so pytest knows where thy custom modules live.\n\nThe Crossbow excels at unit and functional testing — checking that a single module returns the right data, handles edge cases, or fails gracefully. Pair it with Molecule for full coverage: the Crossbow for precision, the War Mace for force."
+        html: 'Where the War Mace is broad, the Crossbow is precise. ' + C('pytest-ansible') + ' is a pytest plugin that lets you write fast, targeted tests for individual Ansible modules and plugins — without spinning up full environments.' +
+          CMD([
+            { cmd: 'pytest -v -s', comment: 'run tests with verbose output' },
+          ]) +
+          'Use the ' + C('ansible_module') + ' fixture in your test files to call modules directly and assert on their return values. Set up a ' + C('conftest.py') + ' with ' + C('ANSIBLE_LIBRARY') + ' and ' + C('ANSIBLE_COLLECTIONS_PATH') + ' so pytest knows where your custom modules live.<br><br>The Crossbow excels at unit and functional testing — checking that a single module returns the right data, handles edge cases, or fails gracefully. Pair it with Molecule for full coverage: the Crossbow for precision, the War Mace for force.'
       },
       "⚔️ The Battle Axe — tox-ansible": {
         title: "⚔️ The Battle Axe — tox-ansible",
-        text: "The Battle Axe cleaves through multiple targets in a single sweep. tox-ansible auto-discovers and runs all thy tests — linting, unit, sanity, and integration — across multiple Python and ansible-core versions with minimal configuration.\n\nSwing wide:\n  tox list                          (see all discovered environments)\n  tox -e lint                       (run ansible-lint)\n  tox -e py311-ansible2.16-unit     (unit tests on specific versions)\n  tox -e py311-ansible2.16-molecule-integration_hello_world\n  tox -f ansible2.16                (all tests for one ansible version)\n\nA minimal tox.ini with [ansible] and ansible_core_versions is all thou needest. The Battle Axe discovers Molecule scenarios, pytest tests, and sanity checks automatically — convention over configuration. When thou must prove thy code works across the entire kingdom's infrastructure, the Battle Axe answers the call."
+        html: 'The Battle Axe cleaves through multiple targets in a single sweep. ' + C('tox-ansible') + ' auto-discovers and runs all your tests — linting, unit, sanity, and integration — across multiple Python and ansible-core versions with minimal configuration.' +
+          CMD([
+            { cmd: 'tox list', comment: 'see all discovered environments' },
+            { cmd: 'tox -e lint', comment: 'run ansible-lint' },
+            { cmd: 'tox -e py311-ansible2.16-unit', comment: 'unit tests on specific versions' },
+            { cmd: 'tox -f ansible2.16', comment: 'all tests for one Ansible version' },
+          ]) +
+          'A minimal ' + C('tox.ini') + ' with ' + C('[ansible]') + ' and ' + C('ansible_core_versions') + ' is all you need. The Battle Axe discovers Molecule scenarios, pytest tests, and sanity checks automatically — convention over configuration.'
       },
     },
     fortress: {
       "🏰 The Siege Tower — ansible-builder": {
         title: "🏰 The Siege Tower — ansible-builder",
-        text: "The Siege Tower carries thy entire army — code, dependencies, and tools — in a single deployable structure. ansible-builder creates Execution Environments (EEs): container images that package ansible-core, collections, Python libraries, and system packages into one portable artifact.\n\nConstruct the tower:\n  ansible-builder create            (generate Containerfile)\n  ansible-builder build -t my-ee -vvv  (build the image)\n  podman images                     (verify the build)\n  podman run my-ee ansible-galaxy collection list\n\nDefine thy EE in execution-environment.yml (v3): set the base image, Galaxy dependencies (including local tarballs via ansible-galaxy collection build), Python requirements, and system packages. The Siege Tower ensures that what works in development works identically in production — no missing libraries, no version drift, no excuses."
+        html: 'The Siege Tower carries your entire army — code, dependencies, and tools — in a single deployable structure. ' + C('ansible-builder') + ' creates Execution Environments (EEs): container images that package ' + C('ansible-core') + ', collections, Python libraries, and system packages into one portable artifact.' +
+          CMD([
+            { cmd: 'ansible-builder create', comment: 'generate Containerfile' },
+            { cmd: 'ansible-builder build -t my-ee -vvv', comment: 'build the image' },
+            { cmd: 'podman images', comment: 'verify the build' },
+            { cmd: 'podman run my-ee ansible-galaxy collection list', comment: 'test it' },
+          ]) +
+          'Define your EE in ' + C('execution-environment.yml') + ' (v3): set the base image, Galaxy dependencies, Python requirements, and system packages. The Siege Tower ensures that what works in development works identically in production — no missing libraries, no version drift, no excuses.'
       },
       "🛡️ The Royal Seal — ansible-sign": {
         title: "🛡️ The Royal Seal — ansible-sign",
-        text: "In a kingdom under siege, trust is everything. ansible-sign lets thee cryptographically sign and verify Ansible project directories using GPG — proving that thy automation content has not been tampered with from forge to battlefield.\n\nSeal thy work:\n  gpg --batch --gen-key key-config  (forge thy signet ring)\n  ansible-sign project gpg-sign .   (sign the project)\n  ansible-sign project gpg-verify . (verify the seal)\n\nThe signing process uses MANIFEST.in to declare which files matter (include, global-exclude, prune), then computes checksums of every included file into .ansible-sign/sha256sum.txt, and GPG-signs that manifest. In Ansible Automation Platform, signed projects are verified on every sync — the Royal Seal guarantees thy supply chain is unbroken."
+        html: 'In a kingdom under siege, trust is everything. ' + C('ansible-sign') + ' lets you cryptographically sign and verify Ansible project directories using GPG — proving that your automation content has not been tampered with from forge to battlefield.' +
+          CMD([
+            { cmd: 'gpg --batch --gen-key key-config', comment: 'forge your signet ring' },
+            { cmd: 'ansible-sign project gpg-sign .', comment: 'sign the project' },
+            { cmd: 'ansible-sign project gpg-verify .', comment: 'verify the seal' },
+          ]) +
+          'The signing process uses ' + C('MANIFEST.in') + ' to declare which files matter, then computes checksums into ' + C('.ansible-sign/sha256sum.txt') + ', and GPG-signs that manifest. In Ansible Automation Platform, signed projects are verified on every sync — the Royal Seal guarantees your supply chain is unbroken.'
       },
       "🧭 The Enchanted Compass — ansible-navigator": {
         title: "🧭 The Enchanted Compass — ansible-navigator",
-        text: "When the fog of war descends, the Enchanted Compass guides thee through the chaos. ansible-navigator is a terminal UI (TUI) that runs Ansible playbooks and lets thee drill into every play, task, and result with clarity no scroll of terminal output can match.\n\nNavigate the battlefield:\n  ansible-navigator run site.yml\n  ansible-navigator run site.yml --execution-environment-image my-ee --pull-policy never\n\nIn the TUI: select a play to see its tasks, select a task to see its results on each host, press ESC to retreat up. Navigator works with or without Execution Environments — in the Fortress, pair it with thy Siege Tower EE to run automation exactly as it will run in production.\n\nIn VS Code, right-click any playbook and choose 'Run with Ansible Navigator' to invoke it directly. The Compass ensures thou always knowest where thy automation stands."
+        html: 'When the fog of war descends, the Enchanted Compass guides you through the chaos. ' + C('ansible-navigator') + ' is a terminal UI (TUI) that runs Ansible playbooks and lets you drill into every play, task, and result with clarity no scroll of terminal output can match.' +
+          CMD([
+            { cmd: 'ansible-navigator run site.yml', comment: 'run a playbook' },
+            { cmd: 'ansible-navigator run site.yml --execution-environment-image my-ee --pull-policy never', comment: 'with a custom EE' },
+          ]) +
+          'In the TUI: select a play to see its tasks, select a task to see its results on each host, press <strong>ESC</strong> to go back. Navigator works with or without Execution Environments — in the Fortress, pair it with your Siege Tower EE to run automation exactly as it will run in production.<br><br>In VS Code, right-click any playbook and choose <strong>Run with Ansible Navigator</strong> to invoke it directly.'
       },
     },
   };
@@ -5561,7 +5688,7 @@ var sfx_sohot = new Audio("data:audio/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAWlzb21tcDQ
     var content = (districtInfoContent[districtId] || {})[label];
     if (!content) return;
     document.getElementById("info-title").textContent = content.title;
-    document.getElementById("info-text").textContent = content.text;
+    document.getElementById("info-text").innerHTML = content.html || content.text;
     document.getElementById("info-overlay").classList.add("visible");
     document.getElementById("overlay-close-btn").classList.add("visible");
 
