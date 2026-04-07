@@ -1,0 +1,290 @@
+{
+  "ansible-creator": [
+    {
+      "q": "What is the primary purpose of ansible-creator?",
+      "opts": [
+        "To run Ansible playbooks in parallel",
+        "To scaffold new Ansible collections, roles, and plugins",
+        "To lint YAML files for syntax errors",
+        "To manage container images for Ansible"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "Which command scaffolds a new collection with ansible-creator?",
+      "opts": [
+        "ansible-creator build myns.mycol",
+        "ansible-creator init collection myns.mycol ./src",
+        "ansible-creator new collection myns.mycol",
+        "ansible-galaxy init collection myns.mycol"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "What does ansible-creator generate as part of a new collection?",
+      "opts": [
+        "A running container with ansible-core pre-installed",
+        "SSH keys for connecting to managed hosts",
+        "The proper directory layout, galaxy.yml, tests, and metadata",
+        "A pre-configured Ansible Tower project"
+      ],
+      "ans": 2
+    }
+  ],
+  "ansible-lint": [
+    {
+      "q": "What is the primary purpose of ansible-lint?",
+      "opts": [
+        "To execute Ansible playbooks faster",
+        "To validate YAML syntax only",
+        "To enforce best practices and detect issues in Ansible content",
+        "To manage Ansible inventories dynamically"
+      ],
+      "ans": 2
+    },
+    {
+      "q": "Which command runs ansible-lint against a playbook named site.yml?",
+      "opts": [
+        "ansible-playbook --lint site.yml",
+        "ansible-lint site.yml",
+        "ansible check site.yml",
+        "ansible-validator site.yml"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "What does ansible-lint typically flag?",
+      "opts": [
+        "Network latency issues during playbook execution",
+        "Deprecated modules, risky patterns, and style violations",
+        "Missing SSH keys on managed hosts",
+        "Incorrect inventory group names at runtime"
+      ],
+      "ans": 1
+    }
+  ],
+  "ade": [
+    {
+      "q": "What does ade (Ansible Dev Environment) manage?",
+      "opts": [
+        "Production deployment pipelines",
+        "Isolated development environments for collections",
+        "Ansible Tower user permissions",
+        "Container orchestration for EEs"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "Which command installs a collection in editable mode with ade?",
+      "opts": [
+        "ade setup --editable .",
+        "ade install -e .",
+        "ade dev mount .",
+        "pip install -e ansible-collection"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "What does 'ade tree -v' display?",
+      "opts": [
+        "The git commit history of the project",
+        "The collection's dependency tree",
+        "A visual map of inventory hosts",
+        "The file structure of ansible.cfg"
+      ],
+      "ans": 1
+    }
+  ],
+  "molecule": [
+    {
+      "q": "What is Molecule primarily used for?",
+      "opts": [
+        "Linting Ansible playbooks for style issues",
+        "Full integration testing of Ansible roles and collections",
+        "Building and publishing container images",
+        "Managing secrets and vault passwords"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "What is the correct Molecule test lifecycle order?",
+      "opts": [
+        "dependency → create → prepare → converge → verify → destroy",
+        "build → deploy → test → clean → report",
+        "init → run → check → validate → end",
+        "prepare → execute → assert → teardown → publish"
+      ],
+      "ans": 0
+    },
+    {
+      "q": "Which Molecule command runs only the playbook without the full lifecycle?",
+      "opts": [
+        "molecule run",
+        "molecule converge",
+        "molecule apply",
+        "molecule execute"
+      ],
+      "ans": 1
+    }
+  ],
+  "pytest-ansible": [
+    {
+      "q": "What is pytest-ansible?",
+      "opts": [
+        "A standalone test runner for Ansible",
+        "A pytest plugin for testing Ansible modules and plugins",
+        "A CI/CD pipeline tool for Ansible projects",
+        "A linter extension for pytest configuration"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "What fixture does pytest-ansible provide to call Ansible modules directly?",
+      "opts": [
+        "ansible_runner",
+        "ansible_module",
+        "ansible_host",
+        "ansible_exec"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "What type of testing does pytest-ansible excel at?",
+      "opts": [
+        "Full integration testing with live infrastructure",
+        "Browser-based UI testing of AWX",
+        "Unit and functional testing of individual modules",
+        "Performance and load testing of playbooks"
+      ],
+      "ans": 2
+    }
+  ],
+  "tox-ansible": [
+    {
+      "q": "What does tox-ansible automatically discover?",
+      "opts": [
+        "Docker images on the local registry",
+        "Test scenarios across multiple Python and ansible-core versions",
+        "Cloud provider endpoints for deployment",
+        "SSH keys and vault passwords in the project"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "Which command lists all discovered tox-ansible test environments?",
+      "opts": [
+        "tox show --all",
+        "tox list",
+        "tox discover envs",
+        "tox-ansible --list-envs"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "What configuration principle does tox-ansible follow for test discovery?",
+      "opts": [
+        "Explicit manifest-based registration",
+        "Convention over configuration",
+        "AI-powered automatic detection",
+        "Manual YAML-based test mapping"
+      ],
+      "ans": 1
+    }
+  ],
+  "ansible-builder": [
+    {
+      "q": "What does ansible-builder create?",
+      "opts": [
+        "Ansible playbooks from templates",
+        "Execution Environments — container images with ansible-core and dependencies",
+        "Virtual machines for testing roles",
+        "Galaxy collection tarballs for publishing"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "What file defines an Execution Environment for ansible-builder?",
+      "opts": [
+        "Dockerfile",
+        "execution-environment.yml",
+        "ansible.cfg",
+        "builder.conf"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "Which ansible-builder command generates the Containerfile without actually building the image?",
+      "opts": [
+        "ansible-builder create",
+        "ansible-builder generate",
+        "ansible-builder init",
+        "ansible-builder dry-run"
+      ],
+      "ans": 0
+    }
+  ],
+  "ansible-sign": [
+    {
+      "q": "What cryptographic system does ansible-sign use to sign projects?",
+      "opts": [
+        "AES-256 symmetric encryption",
+        "RSA key pairs via OpenSSL",
+        "GPG (GNU Privacy Guard)",
+        "SHA-512 hash verification only"
+      ],
+      "ans": 2
+    },
+    {
+      "q": "What file does ansible-sign use to declare which files to include in the signature?",
+      "opts": [
+        "sign.yml",
+        "MANIFEST.in",
+        ".gitignore",
+        "checksums.json"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "Which command verifies a signed Ansible project?",
+      "opts": [
+        "ansible-sign verify project .",
+        "ansible-sign project gpg-verify .",
+        "gpg --verify ansible-project .",
+        "ansible-sign check --gpg ."
+      ],
+      "ans": 1
+    }
+  ],
+  "ansible-navigator": [
+    {
+      "q": "What type of interface does ansible-navigator provide?",
+      "opts": [
+        "A web-based dashboard",
+        "A terminal user interface (TUI)",
+        "A desktop GUI application",
+        "A mobile companion app"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "How do you run a playbook with a specific Execution Environment in ansible-navigator?",
+      "opts": [
+        "ansible-navigator run site.yml --ee my-ee",
+        "ansible-navigator run site.yml --execution-environment-image my-ee",
+        "ansible-navigator exec site.yml --container my-ee",
+        "ansible-navigator play site.yml --image my-ee"
+      ],
+      "ans": 1
+    },
+    {
+      "q": "Which key navigates back or exits in the ansible-navigator TUI?",
+      "opts": [
+        "Q to quit",
+        "Ctrl+C to terminate",
+        "ESC to go back",
+        "Backspace to return"
+      ],
+      "ans": 2
+    }
+  ]
+}

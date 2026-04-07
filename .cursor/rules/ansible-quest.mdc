@@ -1,0 +1,35 @@
+---
+description: Conventions for the Ansible Quest single-file Three.js game
+globs: index.html
+alwaysApply: false
+---
+
+# Ansible Quest Conventions
+
+## Single-file architecture
+- All game code lives in `index.html` — HTML, CSS, and JS in one file
+- Quiz questions are the exception: they live in `questions.json`
+- Audio < 100KB is Base64 inline; larger files go in `assets/`
+
+## CSS hidden pattern
+Every element that uses `.hidden` toggling MUST have its own CSS rule:
+```css
+#my-element.hidden { display: none; }
+```
+There is no global `.hidden` class. Missing this rule = element always visible.
+
+## Scene coordinates
+- Districts: Village x=-28, Township x=0, Fortress x=28 (all z=0)
+- Building grid: cx±10, cz±9 relative to district center
+- Horizontal road: z=14 world
+- Never place objects inside building zones without checking `_buildingBoxes`
+
+## State management
+- Dead NPCs use `v.dead = true; v.mesh.visible = false` — never splice from arrays
+- Respawn by resetting `dead = false; mesh.visible = true`
+- Chest collection is tracked by `_chests[i].collected` flag
+
+## UI overlays
+- Always reset overlay state (buttons, quiz panels, success panels) when opening
+- Escape key should go back one level, not jump to home
+- Use `pointer-events: none` on disabled buttons, not just visual dimming
